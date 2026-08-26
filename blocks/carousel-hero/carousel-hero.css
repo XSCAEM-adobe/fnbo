@@ -42,6 +42,13 @@
   scroll-snap-align: start;
   position: relative;
   width: 100%;
+
+  /* Flex items default to min-width:auto, which lets wide content (the card
+     art / wordmark) push the slide past the 100% basis and overflow the
+     viewport on mobile. Pin to 0 so the slide never exceeds its container. */
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   min-height: 420px;
   display: flex;
   flex-direction: column;

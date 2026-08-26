@@ -5,6 +5,44 @@ import { loadFragment } from '../fragment/fragment.js';
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
 /**
+ * Restore nav image src attributes. The fragment is authored with relative
+ * `images/foo.svg` src values, but Document Authoring strips unknown img src to
+ * `about:error` when the fragment is stored. Remap by alt (logo/FDIC/promo),
+ * and — for the utility icons which have empty alt — by their anchor href, to
+ * the code-bus image path (/content/images/...) which serves the committed
+ * assets. Also handles the local/aem-up case where src is still `images/...`.
+ * @param {Element} scope Container with the raw fragment
+ */
+function restoreNavImages(scope) {
+  const byAlt = {
+    FDIC: 'fdic-logo-white.svg',
+    'FNBO Logo': 'fnbo-logo-white.svg',
+    'FNBO Debit Card': 'promo-debit-card.png',
+  };
+  const byHref = {
+    '/branch-locations/branch-atm-locator': 'icon-location-dot.svg',
+    '/contact-us': 'icon-phone.svg',
+    '/tools-resources/calculators': 'icon-calculator.svg',
+    '/search': 'icon-search.svg',
+  };
+  scope.querySelectorAll('img').forEach((img) => {
+    const src = img.getAttribute('src') || '';
+    if (src.startsWith('/content/images/')) return; // already correct
+    if (src.startsWith('images/')) {
+      img.setAttribute('src', `/content/${src}`);
+      return;
+    }
+    let file = byAlt[img.getAttribute('alt')];
+    if (!file) {
+      const anchor = img.closest('a');
+      const href = anchor ? anchor.getAttribute('href') : null;
+      if (href && byHref[href]) file = byHref[href];
+    }
+    if (file) img.setAttribute('src', `/content/images/${file}`);
+  });
+}
+
+/**
  * Close any open category dropdown panels within the secondary nav row.
  * @param {Element} scope element containing the category items
  */
@@ -220,13 +258,7 @@ export default async function decorate(block) {
     const html = await resp.text();
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
-    // The fragment lives at /content/ and references images with relative paths
-    // (images/foo.svg). Those only resolve at root depth; on deeper pages they
-    // 404. Rewrite to an absolute /content/images/ path so logos/icons load on
-    // every page regardless of URL depth.
-    tmp.querySelectorAll('img[src^="images/"]').forEach((img) => {
-      img.setAttribute('src', `/content/${img.getAttribute('src')}`);
-    });
+    restoreNavImages(tmp);
     fragment = tmp;
   } else {
     fragment = await loadFragment(navPath);

@@ -6,6 +6,7 @@
    single-section import can't apply via section-metadata. Break the wrapper out
    of the 1200px content column and paint the band edge-to-edge. */
 main > .section > .carousel-quote-wrapper {
+  box-sizing: border-box;
   width: 100vw;
   max-width: none;
   margin-left: calc(50% - 50vw);
@@ -66,6 +67,11 @@ main > .section > .carousel-quote-wrapper {
   justify-content: center;
   position: relative;
   width: 100%;
+
+  /* min-width:0 stops the flex item from growing past its 100% basis;
+     box-sizing keeps the 40px padding inside the slide width (no overflow). */
+  min-width: 0;
+  box-sizing: border-box;
   padding: 0 40px;
 }
 

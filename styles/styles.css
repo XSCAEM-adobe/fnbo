@@ -195,6 +195,17 @@ button {
   white-space: nowrap;
 }
 
+/* On narrow viewports, long button labels (e.g. "View our Latest Corporate
+   Responsibility Report") would stay on one line via white-space:nowrap and
+   push their inline-block container past the viewport, causing horizontal
+   scroll. Allow wrapping on mobile so buttons stay within the screen. */
+@media (width <= 600px) {
+  a.button:any-link,
+  button {
+    white-space: normal;
+  }
+}
+
 a.button:hover,
 a.button:focus,
 button:hover,
@@ -331,6 +342,7 @@ main .section.dark {
    wrapper that holds only that image and give it the solid green band + centered
    logo treatment from the source. */
 main .default-content-wrapper:has(> p:only-child > picture img[alt*="great big small bank"]) {
+  box-sizing: border-box;
   width: 100vw;
   max-width: none;
   margin-left: calc(50% - 50vw);

@@ -1,0 +1,154 @@
+{
+  "metadata": {
+    "projectType": "da"
+  },
+  "templates": [
+    {
+      "name": "homepage",
+      "urls": [
+        "https://www.fnbo.com/"
+      ],
+      "coverageGaps": [],
+      "description": "FNBO marketing homepage: carousel hero, product tiles ribbon, blog teaser cards, customer testimonials carousel, community and independent-bank promo bands.",
+      "blocks": [
+        {
+          "name": "carousel-hero",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12 > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.carousel.panelcontainer.ss-carousel-hero.dark.ss-large.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "cards-category",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12 > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesection.responsivegrid.ss-pagesectionheight-ribbon.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "cards-article",
+          "instances": [
+            "#blogTeaser > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.teaserlist.ss-presentation-card.ss-layout-4upgrid.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "carousel-quote",
+          "instances": [
+            "#testimonials"
+          ],
+          "section": "highlight"
+        },
+        {
+          "name": "hero-banner",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12 > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundimage.responsivegrid.ss-backgroundbrightness-dark.ss-overlaystrength-40.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "section-brand-strip",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12 > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundcolor.pagesection.responsivegrid.ss-backgroundcolor-primary.ss-backgroundbrightness-dark.aem-GridColumn.aem-GridColumn--default--12"
+          ],
+          "section": "brand-green"
+        }
+      ]
+    },
+    {
+      "name": "personal-banking-product",
+      "urls": [
+        "https://www.fnbo.com/personal-banking/checking/free-checking",
+        "https://www.fnbo.com/personal-banking/savings"
+      ],
+      "coverageGaps": [
+        {
+          "url": "https://www.fnbo.com/personal-banking/savings",
+          "sections": [
+            { "sectionSignature": "3x1B", "nodeMapId": "rc1c1c5c2c3" },
+            { "sectionSignature": "3x1", "nodeMapId": "rc1c1c5c6" }
+          ]
+        }
+      ],
+      "description": "Personal banking product landing page: full-bleed image page hero with title and CTA, breadcrumb, content sections (feature columns, icon feature grid, FAQ accordion or product cards, video embeds), 4-up financial tips teaser list, and legal disclaimers.",
+      "blocks": [
+        {
+          "name": "hero-banner",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagehero.pagesectionwithbackgroundimage.responsivegrid.ss-heroheight-verytall.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesection.responsivegrid.ss-contentcontainersize-narrow.aem-GridColumn.aem-GridColumn--default--12:not(.ss-pagesectionheight-short):nth-of-type(2)",
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.experiencefragment.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5)",
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundcolor.pagesection.responsivegrid.ss-backgroundcolor-primary.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(7)"
+          ]
+        },
+        {
+          "name": "carousel-feature",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundcolor.pagesection.responsivegrid.ss-backgroundcolor-primary.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(3)"
+          ]
+        },
+        {
+          "name": "cards-feature",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesection.responsivegrid.ss-contentcontainersize-narrow.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(4)"
+          ]
+        },
+        {
+          "name": "accordion",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesection.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(6) > div.cmp-pagesection > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.accordiongroup.accordion.panelcontainer.aem-GridColumn.aem-GridColumn--default--12"
+          ]
+        },
+        {
+          "name": "cards-article",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesection.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(8) > div.cmp-pagesection > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.teaserlist.ss-presentation-card.ss-layout-4upgrid.aem-GridColumn.aem-GridColumn--default--12",
+            "#savingmoneyblogs div.teaserlist"
+          ]
+        },
+        {
+          "name": "cards-product",
+          "instances": [
+            "#savingssolutions > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.columnrow.aem-GridColumn.aem-GridColumn--default--12",
+            "#savingssolutions div.columnrow"
+          ]
+        },
+        {
+          "name": "video",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesection.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(6)"
+          ]
+        },
+        {
+          "name": "section-capable-carousel",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundcolor.pagesection.responsivegrid.ss-backgroundcolor-primary.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(3)"
+          ],
+          "section": "brand-green"
+        },
+        {
+          "name": "section-gobankingrates",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.experiencefragment.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5)"
+          ],
+          "section": "highlight"
+        },
+        {
+          "name": "section-mobile-banking",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundcolor.pagesection.responsivegrid.ss-backgroundcolor-primary.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(7)"
+          ],
+          "section": "brand-green"
+        },
+        {
+          "name": "section-one-thats-free",
+          "instances": [
+            "#main-content > div.root.responsivegrid > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.responsivegrid.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(5) > div.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.pagesectionwithbackgroundcolor.pagesection.responsivegrid.ss-backgroundcolor-primary.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(10)"
+          ],
+          "section": "brand-green"
+        }
+      ]
+    }
+  ]
+}

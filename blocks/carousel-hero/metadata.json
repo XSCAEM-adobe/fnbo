@@ -1,0 +1,39 @@
+{
+  "variantName": "carousel-hero",
+  "baseBlock": "carousel",
+  "version": "1.0.0",
+  "created": "2026-08-25T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.fnbo.com/",
+    "originPage": "FNBO marketing homepage",
+    "blockPosition": "top"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "density": "spacious",
+    "purpose": "hero",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "per slide: background image + heading + subheading + CTA",
+    "buttonCount": 1,
+    "imageCount": 4
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "full-bleed rotating homepage hero banners",
+      "promotional slide decks with a background photo per slide",
+      "campaign heroes needing heading + subheading + single CTA over an image"
+    ],
+    "notSuitableFor": [
+      "text-only testimonial/quote rotators (use carousel-quote)",
+      "static single-slide heroes (use hero/hero-banner)",
+      "product/article card grids (use cards variants)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-25T00:00:00.000Z"
+  }
+}

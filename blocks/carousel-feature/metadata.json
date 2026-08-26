@@ -1,0 +1,39 @@
+{
+  "variantName": "carousel-feature",
+  "baseBlock": "carousel",
+  "version": "1.0.0",
+  "created": "2026-08-25T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.fnbo.com/personal-banking/checking/free-checking",
+    "originPage": "FNBO Free Checking product page",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "brand-green",
+    "density": "spacious",
+    "purpose": "feature-rotator",
+    "imagePattern": "inline"
+  },
+  "contentPattern": {
+    "structure": "per slide: inline image + heading + short paragraph (no CTA)",
+    "buttonCount": 0,
+    "imageCount": 6
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "rotating stat/feature callouts on a colored section band",
+      "multi-slide 'here is why' messaging with a supporting image per slide",
+      "interactive product-benefit rotators without per-slide CTAs"
+    ],
+    "notSuitableFor": [
+      "full-bleed background-image hero carousels (use carousel-hero)",
+      "text-only testimonial/quote rotators (use carousel-quote)",
+      "static single-slide content (use columns/hero)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/personal-banking/checking/free-checking"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-25T00:00:00.000Z"
+  }
+}

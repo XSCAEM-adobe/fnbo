@@ -1,25 +1,63 @@
-/* hero-banner — full-bleed photographic banner with knockout text + yellow CTA */
-.hero-banner-container .hero-banner-wrapper {
-  max-width: unset;
-  padding: 0;
+/* hero-banner — full-bleed page hero: background photo + dark overlay,
+   left-aligned heading / subhead / CTA. Values extracted from FNBO source
+   (free-checking page hero + reused on homepage community/independent bands). */
+
+/* full-bleed: break the block out of the section's 1200px container, and remove
+   the section wrapper's default vertical margin so the band butts flush against
+   adjacent bands / the footer (matches source — no white gap). */
+.hero-banner-wrapper {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .hero-banner {
   position: relative;
+
+  /* establish a stacking context so the z-index:-1 background <picture> stays
+     inside the block and paints ABOVE the block's fallback background-color,
+     instead of escaping to an ancestor context and hiding behind it. */
+  isolation: isolate;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 536px;
+  min-height: 400px;
   padding: 48px 24px;
   overflow: hidden;
-  color: var(--background-color);
+
+  /* fallback band color when no background photo is present. The actual photo
+     is authored as a <picture> (hoisted to a direct child of the block by
+     hero-banner.js) and positioned absolutely below the content via the rules
+     under `.hero-banner picture`. */
+  background-color: var(--brand-green-dark);
+  color: #fff;
 }
 
-/* background photo */
+/* flat dark overlay (source: rgba(0,0,0,0.4)) so white text stays legible */
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: rgb(0 0 0 / 40%);
+}
+
+/* content column — constrained + centered, text left-aligned above overlay */
+.hero-banner > div {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+/* if an image is authored into the block, treat it as the background photo */
 .hero-banner picture {
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: -1;
+  margin: 0;
 }
 
 .hero-banner picture img {
@@ -28,52 +66,78 @@
   object-fit: cover;
 }
 
-/* dark scrim so knockout text stays legible */
-.hero-banner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(90deg, rgb(0 0 0 / 70%) 0%, rgb(0 0 0 / 35%) 55%, rgb(0 0 0 / 10%) 100%);
-}
-
-.hero-banner > div {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.hero-banner h1,
-.hero-banner h2 {
-  margin: 0 0 0.25em;
-  max-width: 640px;
-  color: var(--background-color);
+.hero-banner h1 {
+  margin: 0 0 24px;
+  max-width: 760px;
+  color: #fff;
   font-family: var(--heading-font-family);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--heading-font-size-xxl);
-  line-height: 1.1;
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+.hero-banner h2 {
+  margin: 0 0 16px;
+  max-width: 640px;
+  color: #fff;
+  font-family: var(--heading-font-family);
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 28px;
 }
 
 .hero-banner p {
-  max-width: 520px;
-  margin: 0 0 1.5em;
-  font-size: 1.25rem;
-  line-height: 1.4;
+  margin: 0 0 16px;
+  max-width: 640px;
+  color: #fff;
 }
 
-.hero-banner a.button:any-link,
-.hero-banner p strong {
+/* links in body text (homepage bands use link lists) */
+.hero-banner a:any-link {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* CTA button — source: white bg, brand-green-dark text, 16px/600 */
+.hero-banner a.button:any-link {
   display: inline-block;
-  background-color: var(--brand-yellow);
-  color: var(--text-strong-color);
-  font-weight: var(--font-weight-semibold);
-  padding: 0.625em 1.5em;
-  border-radius: var(--border-radius);
+  margin: 8px 0 0;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  padding: 8px 24px;
+  background-color: #fff;
+  color: var(--brand-green-dark);
+  font-family: var(--body-font-family);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.hero-banner a.button:hover,
+.hero-banner a.button:focus {
+  background-color: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+
+/* Multiple CTAs sit on a single horizontal row (source lays them side by side).
+   Each CTA is its own .button-container <p>; render them inline with a gap and
+   let them wrap only if the viewport is too narrow. */
+.hero-banner .button-container {
+  display: inline-block;
+  margin: 16px 12px 0 0;
 }
 
 @media (width >= 900px) {
   .hero-banner {
-    height: 536px;
-    padding: 64px 32px;
+    min-height: 567px;
+    padding: 32px;
+  }
+
+  .hero-banner h1 {
+    margin: 0 0 32px;
+    font-size: 48px;
+    line-height: 1.4;
   }
 }

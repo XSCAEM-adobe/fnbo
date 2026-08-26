@@ -1,0 +1,41 @@
+{
+  "variantName": "columns-media",
+  "baseBlock": "columns",
+  "version": "1.0.0",
+  "created": "2026-08-25T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.fnbo.com/personal-banking/checking/free-checking",
+    "originPage": "FNBO Free Checking product page",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "media-text-split",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "two columns: rich-text (heading/list/CTA) beside image + text",
+    "buttonCount": 2,
+    "imageCount": 1,
+    "hasDescription": true
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "side-by-side text + image content splits",
+      "why-choose-us panels (bullet list beside a supporting image)",
+      "app/product promo splits (screenshot beside feature list + CTA)",
+      "award/callout blocks (copy beside a badge image)"
+    ],
+    "notSuitableFor": [
+      "full-bleed hero banners with background images (use hero-banner)",
+      "repeating card grids of 3+ items (use cards variants)",
+      "rotating slides (use carousel variants)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/personal-banking/checking/free-checking"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-25T00:00:00.000Z"
+  }
+}

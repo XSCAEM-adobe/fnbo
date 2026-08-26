@@ -1,0 +1,42 @@
+{
+  "variantName": "cards-article",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-08-25T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.fnbo.com/",
+    "originPage": "FNBO marketing homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "article",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "per card: thumbnail image + headline + Read Article CTA",
+    "buttonCount": 1,
+    "imageCount": 4
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "blog / article / insights teaser grids",
+      "4-up news or resource card rows with image + headline + read-more link",
+      "editorial content promos on a light background"
+    ],
+    "notSuitableFor": [
+      "compact icon + label navigation tiles (use cards-category)",
+      "icon + title + description feature rows (use cards-feature)",
+      "colored promo cards with body copy (use cards-promo)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": [
+      "/index",
+      "/personal-banking/checking/free-checking"
+    ],
+    "reuseCount": 2,
+    "lastUsed": "2026-08-25T00:00:00.000Z"
+  }
+}

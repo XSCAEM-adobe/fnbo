@@ -1,0 +1,212 @@
+/* Block: columns-media — CSS refined from FNBO source computed styles */
+
+.columns-media > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+/* headline (h2/h3) — source: 24px / 600 / 1.4 / #444 */
+.columns-media h2,
+.columns-media h3 {
+  margin: 0 0 16px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+/* body copy */
+.columns-media p {
+  margin: 0 0 8px;
+  font-size: var(--body-font-size-s);
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+/* bulleted lists — source: disc, indent 24px, li 16px/24px, 8px gap */
+.columns-media ul,
+.columns-media ol {
+  margin: 0 0 0 24px;
+  padding: 0;
+  font-size: var(--body-font-size-s);
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.columns-media li {
+  margin-bottom: 8px;
+}
+
+/* images */
+.columns-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+/* pure-image column: image is the only content */
+.columns-media > div > .columns-media-img-col {
+  order: 0;
+}
+
+.columns-media > div > .columns-media-img-col p {
+  margin: 0;
+}
+
+/* promo column: image over centered heading + copy + CTA */
+.columns-media > div > .columns-media-promo-col {
+  text-align: center;
+}
+
+.columns-media > div > .columns-media-promo-col img {
+  width: auto;
+  max-width: 345px;
+  margin: 0 auto;
+}
+
+.columns-media > div > .columns-media-promo-col .button-container {
+  text-align: center;
+}
+
+/* GOBankingRates award badge (~319x334) should size to its artwork, not stretch
+   to the full image column. Cap the width and center it. */
+.columns-media-wrapper:has(a[href*="gobankingrates"]) .columns-media-img-col img,
+.columns-media-wrapper:has(a[href*="gobankingrates"]) img[alt*="GOBankingRates"] {
+  width: auto;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* CTA button — source: solid brand-green-dark, 8px 24px, radius 4px, 16px/600 */
+.columns-media a.button:any-link {
+  margin: 8px 0 0;
+  padding: 8px 24px;
+  border: 0;
+  border-radius: 4px;
+  font-size: var(--body-font-size-s);
+  font-weight: 600;
+  line-height: 1.5;
+  background-color: var(--brand-green-dark);
+  color: #fff;
+}
+
+.columns-media a.button:hover,
+.columns-media a.button:focus {
+  background-color: var(--brand-green);
+  border: 0;
+  color: #fff;
+}
+
+/* ---------------------------------------------------------------------------
+   Section bands. columns-media is used three times on free-checking, each with
+   a different source treatment. They live in one un-split section, so target
+   them by unique inner links:
+     - GOBankingRates award  → full-bleed light-grey band
+     - Mobile Banking        → full-bleed brand-green band, white text
+     - Why FNBO Free Checking → plain white (default, no band)
+   --------------------------------------------------------------------------- */
+
+/* full-bleed for both banded instances */
+.columns-media-wrapper:has(a[href*="gobankingrates"]),
+.columns-media-wrapper:has(a[title="Learn More"]) {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+/* re-constrain the inner content to the page content width */
+.columns-media-wrapper:has(a[href*="gobankingrates"]) > .columns-media,
+.columns-media-wrapper:has(a[title="Learn More"]) > .columns-media {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+/* GOBankingRates — light grey band (source uses a subtle grey gradient image) */
+.columns-media-wrapper:has(a[href*="gobankingrates"]) {
+  background-image: linear-gradient(90deg, #cdced0 0%, #ededed 50%, #cdced0 100%);
+}
+
+/* Mobile Banking — solid brand-green band, all text white */
+.columns-media-wrapper:has(a[title="Learn More"]) {
+  background-color: var(--brand-green);
+}
+
+.columns-media-wrapper:has(a[title="Learn More"]) h2,
+.columns-media-wrapper:has(a[title="Learn More"]) h3,
+.columns-media-wrapper:has(a[title="Learn More"]) p,
+.columns-media-wrapper:has(a[title="Learn More"]) li,
+.columns-media-wrapper:has(a[title="Learn More"]) a:any-link {
+  color: #fff;
+}
+
+/* Learn More CTA — white button with green text */
+.columns-media-wrapper:has(a[title="Learn More"]) a.button:any-link {
+  background-color: #fff;
+  color: var(--brand-green-dark);
+}
+
+.columns-media-wrapper:has(a[title="Learn More"]) a.button:hover,
+.columns-media-wrapper:has(a[title="Learn More"]) a.button:focus {
+  background-color: var(--light-color);
+  color: var(--brand-green-dark);
+}
+
+/* app-store badge row (Mobile Banking): horizontal, no bullets, ~150px each */
+.columns-media ul:has(a img) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.columns-media ul:has(a img) li {
+  margin: 0;
+}
+
+/* app-store badges: source renders them ~150x45. The EDS/Scene7-optimized
+   picture serves a 2000x45 rendition that centres the ~135px badge inside a
+   transparent canvas, so height:auto collapses to ~3px. Pin the box to the
+   source badge size and crop to the centred artwork with object-fit:cover. */
+/* stylelint-disable-next-line no-descending-specificity */
+.columns-media ul:has(a img) img {
+  width: 150px;
+  height: 45px;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (width >= 900px) {
+  /* two equal columns side by side with a subtle divider */
+  .columns-media > div {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 30px;
+  }
+
+  .columns-media > div > div {
+    flex: 1 1 0;
+    order: unset;
+    min-width: 0;
+  }
+
+  /* divider between the two columns (source: green vertical rule) */
+  .columns-media.columns-media-2-cols > div > div:first-child {
+    padding-right: 30px;
+    border-right: 1px solid var(--brand-green);
+  }
+
+  /* promo column vertically centered next to text */
+  .columns-media > div > .columns-media-promo-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}

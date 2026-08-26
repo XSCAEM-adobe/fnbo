@@ -1,324 +1,552 @@
-/* header and nav layout */
+/* FNBO header — desktop. Mobile styles added in a later phase. */
+
+/* Header link colors are driven by container context (green bar = white text,
+   white panels = dark text) plus a low-cost `header a:any-link` reset that
+   overrides the site's global `a:any-link` color. This intentionally produces
+   anchor rules at mixed specificities in source order; disable the ordering
+   lint for this file only. */
+/* stylelint-disable no-descending-specificity */
+
+:root {
+  --fnbo-green: #006341;
+  --fnbo-green-dark: #003b27;
+  --fnbo-green-light: #00794f;
+  --fnbo-text-dark: #444;
+  --fnbo-white: #fff;
+  --nav-font: 'Roboto', calibri, helvetica, sans-serif;
+}
+
+/* Header sizes to its content (3 rows) and stacks above page content. */
+header.header-wrapper {
+  height: auto;
+  position: relative;
+  z-index: 100;
+}
+
 header .nav-wrapper {
-  background-color: var(--background-color);
   width: 100%;
-  z-index: 2;
-  position: fixed;
+  background: var(--fnbo-white);
+  font-family: var(--nav-font);
+  position: relative;
+  z-index: 100;
 }
 
 header nav {
-  box-sizing: border-box;
-  display: grid;
-  grid-template:
-    'hamburger brand tools' var(--nav-height)
-    'sections sections sections' 1fr / auto 1fr auto;
-  align-items: center;
-  gap: 0 24px;
-  margin: auto;
-  max-width: 1248px;
-  height: var(--nav-height);
-  padding: 0 24px;
-  font-family: var(--body-font-family);
-}
-
-header nav[aria-expanded='true'] {
-  grid-template:
-    'hamburger brand' var(--nav-height)
-    'sections sections' 1fr
-    'tools tools' var(--nav-height) / auto 1fr;
-  overflow-y: auto;
-  min-height: 100dvh;
-}
-
-@media (width >= 900px) {
-  header nav {
-    display: flex;
-    justify-content: space-between;
-    gap: 0 32px;
-    max-width: 1264px;
-    padding: 0 32px;
-  }
-
-  header nav[aria-expanded='true'] {
-    min-height: 0;
-    overflow: visible;
-  }
-}
-
-header nav p {
+  display: block;
   margin: 0;
-  
-  /* line-height: 1; BOILERPLATE DOESN'T HAVE a P tag in header, */
 }
 
-header nav a:any-link {
-  color: currentcolor;
+header nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-/* hamburger */
-header nav .nav-hamburger {
-  grid-area: hamburger;
-  height: 22px;
+/* Single low-cost reset: header links inherit their container's color and lose
+   underline. Container colors (green bar = white, panels = dark) cascade down,
+   so per-link color rules are unnecessary and specificity stays flat. */
+header a:any-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ---------- Row 0: FDIC bar ---------- */
+.nav-fdic {
+  background: var(--fnbo-green-dark);
+  color: var(--fnbo-white);
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 24px;
+}
+
+.nav-fdic p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--fnbo-white);
+}
+
+.nav-fdic img {
+  height: 16px;
+  width: auto;
+  font-style: normal;
+}
+
+/* ---------- Row 1: main green bar ---------- */
+.nav-main {
+  background: var(--fnbo-green);
+  color: var(--fnbo-white);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+}
+
+.nav-brand {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
 }
 
-header nav .nav-hamburger button {
-  height: 22px;
+.nav-brand p {
   margin: 0;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  background-color: var(--background-color);
-  color: inherit;
-  overflow: initial;
-  text-overflow: initial;
-  white-space: initial;
+  display: flex;
+  align-items: center;
 }
 
-header nav .nav-hamburger-icon,
-header nav .nav-hamburger-icon::before,
-header nav .nav-hamburger-icon::after {
-  box-sizing: border-box;
-  display: block;
-  position: relative;
-  width: 20px;
-}
-
-header nav .nav-hamburger-icon::before,
-header nav .nav-hamburger-icon::after {
-  content: '';
-  position: absolute;
-  background: currentcolor;
-}
-
-header nav[aria-expanded='false'] .nav-hamburger-icon,
-header nav[aria-expanded='false'] .nav-hamburger-icon::before,
-header nav[aria-expanded='false'] .nav-hamburger-icon::after {
-  height: 2px;
-  border-radius: 2px;
-  background: currentcolor;
-}
-
-header nav[aria-expanded='false'] .nav-hamburger-icon::before {
-  top: -6px;
-}
-
-header nav[aria-expanded='false'] .nav-hamburger-icon::after {
-  top: 6px;
-}
-
-header nav[aria-expanded='true'] .nav-hamburger-icon {
-  height: 22px;
-}
-
-header nav[aria-expanded='true'] .nav-hamburger-icon::before,
-header nav[aria-expanded='true'] .nav-hamburger-icon::after {
-  top: 3px;
-  left: 1px;
-  transform: rotate(45deg);
-  transform-origin: 2px 1px;
-  width: 24px;
-  height: 2px;
-  border-radius: 2px;
-}
-
-header nav[aria-expanded='true'] .nav-hamburger-icon::after {
-  top: unset;
-  bottom: 3px;
-  transform: rotate(-45deg);
-}
-
-@media (width >= 900px) {
-  header nav .nav-hamburger {
-    display: none;
-    visibility: hidden;
-  }
-}
-
-/* brand */
-header .nav-brand {
-  grid-area: brand;
-  flex-basis: 128px;
-  font-size: var(--heading-font-size-s);
-  font-weight: 700;
-  line-height: 1;
-}
-
-header nav .nav-brand img {
-  width: 128px;
+.nav-brand img {
+  width: 192px;
   height: auto;
 }
 
-/* sections */
-header nav .nav-sections {
-  grid-area: sections;
+/* Top-level section list */
+.nav-sections {
   flex: 1 1 auto;
-  display: none;
-  visibility: hidden;
 }
 
-header nav[aria-expanded='true'] .nav-sections {
-  display: block;
-  visibility: visible;
-  align-self: start;
+.nav-section-list {
+  display: flex;
+  align-items: center;
+  gap: 28px;
 }
 
-header nav .nav-sections ul {
-  list-style: none;
-  padding-left: 0;
-  font-size: var(--body-font-size-s);
-}
-
-header nav .nav-sections ul > li {
+.nav-section-link {
+  color: var(--fnbo-white);
+  font-size: 16px;
   font-weight: 500;
+  padding: 6px 0;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
 }
 
-header nav .nav-sections ul > li > ul {
-  margin-top: 0;
+.nav-section-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 3px;
+  background: var(--fnbo-white);
+  transform: scaleX(0);
+  transition: transform 0.15s ease;
 }
 
-header nav .nav-sections ul > li > ul > li {
-  font-weight: 400;
+.nav-section.is-active .nav-section-link::after,
+.nav-section-link:hover::after {
+  transform: scaleX(1);
 }
 
-@media (width >= 900px) {
-  header nav .nav-sections {
-    display: block;
-    visibility: visible;
-    white-space: nowrap;
+/* Tools cluster (right) */
+.nav-tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-tools > ul {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-tools > ul a {
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-tools > ul a:hover {
+  text-decoration: underline;
+}
+
+.nav-tools img {
+  width: 22px;
+  height: 22px;
+  filter: brightness(0) invert(1);
+}
+
+/* Utility labels that are icon-only in the source (ATM/Branch, Contact, Calculators, Search) */
+.nav-tools > ul li:nth-child(-n+4) a {
+  font-size: 0;
+  gap: 0;
+}
+
+.nav-tools > ul li:nth-child(-n+4) img {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-login-wrapper {
+  margin: 0;
+}
+
+.nav-tools .nav-login {
+  display: inline-block;
+  background: var(--fnbo-white);
+  color: var(--fnbo-green-dark);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 8px 20px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+}
+
+.nav-tools .nav-login:hover {
+  background: transparent;
+  color: var(--fnbo-white);
+  border-color: var(--fnbo-white);
+  text-decoration: none;
+}
+
+/* ---------- Row 2: white secondary sub-nav ---------- */
+.nav-subnav {
+  background: var(--fnbo-white);
+  color: var(--fnbo-text-dark);
+  min-height: 56px;
+  padding: 0 24px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+  position: relative;
+  z-index: 20;
+}
+
+.nav-cat-list {
+  display: block;
+  min-height: 56px;
+}
+
+/* All section groups are in the DOM; only the active one shows. */
+.nav-cat-group {
+  display: none;
+  align-items: center;
+  gap: 32px;
+  min-height: 56px;
+}
+
+.nav-cat-group.is-active-group {
+  display: flex;
+}
+
+.nav-cat {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 56px;
+}
+
+.nav-cat-trigger {
+  background: none;
+  border: 0;
+  font-family: inherit;
+  color: var(--fnbo-text-dark);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.nav-cat-trigger::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--fnbo-green);
+  transform: scaleX(0);
+  transition: transform 0.15s ease;
+}
+
+.nav-cat:hover .nav-cat-trigger::after,
+.nav-cat.is-open .nav-cat-trigger::after {
+  transform: scaleX(1);
+}
+
+.nav-cat-trigger:hover {
+  color: var(--fnbo-green);
+}
+
+/* ---------- Level 3: dropdown panels ---------- */
+.nav-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 260px;
+  background: var(--fnbo-white);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 15%);
+  border-top: 3px solid var(--fnbo-green);
+  padding: 20px 24px;
+  display: none;
+  z-index: 30;
+}
+
+.nav-cat.is-open .nav-panel {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-panel-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 220px;
+}
+
+header .nav-panel-links a {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+header .nav-panel-links a:hover {
+  color: var(--fnbo-green);
+  text-decoration: underline;
+}
+
+.nav-panel-promo {
+  border-left: 1px solid #e0e0e0;
+  padding-left: 24px;
+  max-width: 240px;
+}
+
+.nav-panel-promo p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--fnbo-text-dark);
+}
+
+header .nav-panel-promo img {
+  width: 140px;
+  height: auto;
+}
+
+header .nav-panel-promo a {
+  color: var(--fnbo-green);
+  font-weight: 600;
+}
+
+/* ---------- Log In dropdown ---------- */
+.nav-login-dropdown {
+  position: relative;
+}
+
+.nav-login-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 240px;
+  background: var(--fnbo-white);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 15%);
+  border-top: 3px solid var(--fnbo-green);
+  padding: 12px 0;
+  display: none;
+  flex-direction: column;
+  z-index: 40;
+  color: var(--fnbo-text-dark);
+}
+
+.nav-login-dropdown.is-open .nav-login-menu {
+  display: flex;
+}
+
+header .nav-login-menu a {
+  font-size: 14px;
+  padding: 8px 20px;
+  display: block;
+}
+
+header .nav-login-menu a:hover {
+  background: #f2f7f4;
+  color: var(--fnbo-green);
+}
+
+/* ---------- Hamburger (hidden on desktop) ---------- */
+.nav-hamburger {
+  display: none;
+}
+
+@media (width <= 899px) {
+  header .nav-wrapper {
+    overflow-x: hidden;
   }
 
-  header nav[aria-expanded='true'] .nav-sections {
-    align-self: unset;
-  }
-
-  header nav .nav-sections .nav-drop {
-    position: relative;
-    padding-right: 16px;
-    cursor: pointer;
-  }
-
-  header nav .nav-sections .nav-drop::after {
-    content: '';
-    display: inline-block;
-    position: absolute;
-    top: 0.5em;
-    right: 2px;
-    transform: rotate(135deg);
-    width: 6px;
-    height: 6px;
-    border: 2px solid currentcolor;
-    border-radius: 0 1px 0 0;
-    border-width: 2px 2px 0 0;
-  }
-
-  header nav .nav-sections .nav-drop[aria-expanded='true']::after {
-    top: unset;
-    bottom: 0.5em;
-    transform: rotate(315deg);
-  }
-
-  header nav .nav-sections ul {
+  /* ---- Collapsed top bar: hamburger | logo | Log In ---- */
+  .nav-hamburger {
     display: flex;
     align-items: center;
-    gap: 24px;
-    margin: 0;
+    order: 0;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li {
-    flex: 0 1 auto;
-    position: relative;
+  .nav-hamburger button {
+    background: none;
+    border: 0;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li > ul {
-    display: none;
-    position: relative;
-  }
-
-  header nav .nav-sections .default-content-wrapper > ul > li[aria-expanded='true'] > ul {
-    display: block;
-    position: absolute;
-    left: -24px;
-    width: 200px;
-    top: 150%;
-    padding: 16px;
-    background-color: var(--light-color);
-    white-space: initial;
-    z-index: 1;
-  }
-
-  header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
+  /* Hamburger icon (three bars) that morphs to an X when the menu is open. */
+  .nav-hamburger-icon,
+  .nav-hamburger-icon::before,
+  .nav-hamburger-icon::after {
     content: '';
-    position: absolute;
-    top: -8px;
-    left: 16px;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid var(--light-color);
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--fnbo-white);
+    transition: transform 0.2s ease, opacity 0.2s ease;
   }
 
-  header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
+  .nav-hamburger-icon {
+    position: relative;
+  }
+
+  .nav-hamburger-icon::before {
+    position: absolute;
+    top: -7px;
+    left: 0;
+  }
+
+  .nav-hamburger-icon::after {
+    position: absolute;
+    top: 7px;
+    left: 0;
+  }
+
+  .is-menu-open .nav-hamburger-icon {
+    background: transparent;
+  }
+
+  .is-menu-open .nav-hamburger-icon::before {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .is-menu-open .nav-hamburger-icon::after {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .nav-main {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 8px 16px;
+  }
+
+  .nav-brand {
+    order: 1;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  /* Drawer content (sections) drops onto its own full-width row below the bar. */
+  .nav-sections {
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  .nav-brand img {
+    width: 150px;
+  }
+
+  /* Keep the Log In CTA visible in the collapsed bar; hide its dropdown menu. */
+  .nav-tools {
+    order: 2;
+    flex: 0 0 auto;
+    gap: 0;
+  }
+
+  .nav-tools > ul {
+    display: none;
+  }
+
+  /* ---- Drawer: sections + categories, hidden until the menu opens ---- */
+  .nav-sections,
+  .nav-subnav {
+    display: none;
+  }
+
+  .is-menu-open .nav-sections,
+  .is-menu-open .nav-subnav {
+    display: block;
+  }
+
+  /* Sections stack vertically in the drawer. */
+  .is-menu-open .nav-sections {
+    background: var(--fnbo-green);
     padding: 8px 0;
   }
-}
 
-/* tools */
-header nav .nav-tools {
-  grid-area: tools;
-}
-
-header nav .nav-tools .button {
-  margin: 0;
-  border: none;
-  padding: 0.5em;
-  background: none;
-  line-height: 0;
-}
-
-/* breadcrumbs */
-header .breadcrumbs {
-  display: none;
-  margin: auto;
-  max-width: 1248px;
-  height: var(--breadcrumbs-height);
-  padding: 0 24px;
-  font-size: var(--body-font-size-xs);
-  overflow: hidden;
-}
-
-header .breadcrumbs ol {
-  display: flex;
-  flex-flow: wrap;
-  list-style: none;
-  padding: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  gap: 1ch;
-}
-
-/* stylelint-disable-next-line no-descending-specificity */
-header .breadcrumbs ol li {
-  padding: 0;
-  color: var(--dark-color);
-}
-
-header .breadcrumbs ol li:not(:last-child)::after {
-  content: '/';
-  padding-left: 1ch;
-}
-
-/* stylelint-disable-next-line no-descending-specificity */
-header .breadcrumbs ol li[aria-current] {
-  color: var(--text-color);
-}
-
-@media (width >= 900px) {
-  header .breadcrumbs {
+  .is-menu-open .nav-section-list {
     display: block;
-    max-width: 1264px;
-    padding: 0 32px;
+  }
+
+  .is-menu-open .nav-section {
+    border-top: 1px solid rgb(255 255 255 / 15%);
+  }
+
+  .is-menu-open .nav-section-link {
+    display: block;
+    padding: 14px 16px;
+    font-size: 17px;
+  }
+
+  /* The active section's category group shows below it; the subnav becomes a
+     plain stacked list rather than a horizontal bar. */
+  .nav-subnav {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .nav-cat-list {
+    min-height: 0;
+  }
+
+  .nav-cat-group {
+    gap: 0;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-cat-group.is-active-group {
+    display: flex;
+  }
+
+  .nav-cat {
+    display: block;
+    height: auto;
+    border-bottom: 1px solid #eee;
+  }
+
+  .nav-cat-trigger {
+    width: 100%;
+    height: auto;
+    padding: 14px 24px;
+    justify-content: flex-start;
+  }
+
+  /* In the drawer, dropdown panels render inline (static) rather than floating. */
+  .nav-panel {
+    position: static;
+    box-shadow: none;
+    border-top: 0;
+    padding: 0 24px 12px;
+  }
+
+  .nav-cat.is-open .nav-panel {
+    display: block;
   }
 }

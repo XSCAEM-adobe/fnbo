@@ -1,0 +1,42 @@
+{
+  "variantName": "cards-product",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-08-25T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.fnbo.com/personal-banking/savings",
+    "originPage": "FNBO Personal Savings page (coverage-gap section for personal-banking-product template)",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "product-cards",
+    "imagePattern": "icon"
+  },
+  "contentPattern": {
+    "structure": "per card: icon + product title + primary CTA + description + benefit bullet list + secondary Learn More link",
+    "buttonCount": 2,
+    "imageCount": 0,
+    "hasDescription": true,
+    "hasCTA": true
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "product-comparison card rows (savings/checking/loan products side by side)",
+      "solution cards with icon + title + CTA + description + feature list",
+      "3-up bordered product tiles with dual CTAs"
+    ],
+    "notSuitableFor": [
+      "image-led article/insight teasers (use cards-article)",
+      "compact icon + label navigation tiles (use cards-category)",
+      "icon + title + description-only feature rows (use cards-feature)",
+      "colored promo cards with a single CTA and large imagery (use cards-promo)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/personal-banking/savings"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-25T00:00:00.000Z"
+  }
+}

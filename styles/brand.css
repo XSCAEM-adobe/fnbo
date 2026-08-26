@@ -1,0 +1,31 @@
+/* brand.css — FNBO brand tokens extracted from https://www.fnbo.com/ */
+:root {
+  /* fonts */
+  --heading-font-family: roboto, "Calibri", "Helvetica", sans-serif;
+  --body-font-family: roboto, "Calibri", "Helvetica", sans-serif;
+
+  /* colors */
+  --background-color: #fff;
+  --text-color: #444;
+  --link-color: #006341;
+  --link-hover-color: #003b27;
+
+  /* brand palette */
+  --brand-green: #006341;
+  --brand-green-dark: #003b27;
+  --light-color: #f2f2f2;
+  --dark-color: #003b27;
+
+  /* spacing */
+  --section-padding: 40px;
+  --content-max-width: 1200px;
+  --nav-height: 80px;
+
+  /* heading sizes (desktop) */
+  --heading-size-xxl: 45px;
+  --heading-size-xl: 36px;
+  --heading-size-l: 28px;
+  --heading-size-m: 22px;
+  --heading-size-s: 20px;
+  --heading-size-xs: 18px;
+}

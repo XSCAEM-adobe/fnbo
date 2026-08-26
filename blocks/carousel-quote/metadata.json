@@ -1,0 +1,39 @@
+{
+  "variantName": "carousel-quote",
+  "baseBlock": "carousel",
+  "version": "1.0.0",
+  "created": "2026-08-25T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.fnbo.com/",
+    "originPage": "FNBO marketing homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "testimonial",
+    "imagePattern": "noimg"
+  },
+  "contentPattern": {
+    "structure": "per slide: quote text + author attribution",
+    "buttonCount": 0,
+    "imageCount": 0
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "customer testimonial / review rotators",
+      "text-only quote carousels on a light or tinted background",
+      "'what our customers are saying' style sections"
+    ],
+    "notSuitableFor": [
+      "image-driven hero carousels (use carousel-hero)",
+      "single static quotes (use quote block)",
+      "card grids"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-08-25T00:00:00.000Z"
+  }
+}

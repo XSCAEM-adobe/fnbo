@@ -1,20 +1,151 @@
+/* FNBO site footer */
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  background-color: #003b27;
+  color: #fff;
+  font-family: roboto, roboto-fallback, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
 }
 
-footer .footer > div {
-  margin: auto;
+footer .footer-content {
   max-width: 1200px;
-  padding: 40px 24px 24px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0 24px;
 }
 
-footer .footer p {
+footer .footer-section {
+  min-width: 0;
+}
+
+footer .footer-content p {
   margin: 0;
+  color: #fff;
 }
 
-@media (width >= 900px) {
-  footer .footer > div {
-    padding: 40px 32px 24px;
+footer a,
+footer a:any-link {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+footer a:hover {
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+/* Brand column: logo + tagline + social icons */
+footer .footer-brand img {
+  width: 200px;
+  height: auto;
+  margin-bottom: 16px;
+}
+
+footer .footer-brand p {
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+footer .footer-social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+footer .footer-social li {
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer-social a {
+  display: inline-flex;
+  align-items: center;
+}
+
+footer .footer-social img {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  display: block;
+}
+
+/* Link columns: Products / Company / Legal Information */
+footer .footer-links h2 {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+  margin: 0 0 16px;
+}
+
+footer .footer-links ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer-links li {
+  margin: 16px 0;
+  line-height: 24px;
+}
+
+footer .footer-links a {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Legal / disclaimer block spans full width below the columns */
+footer .footer-legal {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+footer .footer-legal hr {
+  border: 0;
+  border-top: 2px solid #006341;
+  margin: 16px 0;
+}
+
+footer .footer-legal p {
+  margin: 0 0 16px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+footer .footer-legal p:last-child {
+  margin-bottom: 0;
+}
+
+footer .footer-legal p sup {
+  font-size: 0.7em;
+}
+
+footer .footer-legal a {
+  display: inline-block;
+}
+
+footer .footer-legal img {
+  width: 38px;
+  height: 50px;
+  display: inline-block;
+}
+
+/* Responsive: stack columns on tablet/mobile */
+@media (width <= 900px) {
+  footer .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 24px;
+  }
+}
+
+@media (width <= 600px) {
+  footer .footer-content {
+    grid-template-columns: 1fr;
   }
 }

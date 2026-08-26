@@ -1,6 +1,39 @@
 import { getMetadata } from '../../scripts/aem.js';
 
 /**
+ * Restore footer image src attributes. The fragment is authored with relative
+ * `images/foo.svg` src values, but the Document Authoring pipeline strips
+ * unknown img src to `about:error` when the fragment is stored. Every footer
+ * image has a stable `alt`, so remap alt -> the code-bus image path
+ * (/content/images/...) which serves the committed SVG/PNG assets. Also handles
+ * the local/aem-up case where src is still `images/...`.
+ * @param {Element} scope Container with the raw fragment
+ */
+function restoreFooterImages(scope) {
+  const byAlt = {
+    'First National Bank of Omaha Logo': 'footer-fnbo-logo-white.svg',
+    LinkedIn: 'social-linkedin.svg',
+    Facebook: 'social-facebook.svg',
+    'Twitter/X': 'social-x.svg',
+    Instagram: 'social-instagram.svg',
+    TikTok: 'social-tiktok.svg',
+    Pinterest: 'social-pinterest.svg',
+    YouTube: 'social-youtube.svg',
+    'Equal Housing Lender Logo': 'equal-housing-logo.png',
+  };
+  scope.querySelectorAll('img').forEach((img) => {
+    const src = img.getAttribute('src') || '';
+    if (src.startsWith('/content/images/')) return; // already correct
+    if (src.startsWith('images/')) {
+      img.setAttribute('src', `/content/${src}`);
+      return;
+    }
+    const file = byAlt[img.getAttribute('alt')];
+    if (file) img.setAttribute('src', `/content/images/${file}`);
+  });
+}
+
+/**
  * Fetch the footer fragment HTML.
  * Local/aem-up: /content/footer.plain.html. DA/EDS production: `${footerPath}.plain.html`.
  * @param {string} footerPath Footer doc path (without the .plain.html suffix)
@@ -15,12 +48,7 @@ async function fetchFooterFragment(footerPath) {
   const html = await resp.text();
   const container = document.createElement('div');
   container.innerHTML = html;
-  // The fragment lives at /content/ and references images relatively
-  // (images/foo.svg), which 404 on deeper pages. Rewrite to absolute
-  // /content/images/ so the logo + social icons load at any URL depth.
-  container.querySelectorAll('img[src^="images/"]').forEach((img) => {
-    img.setAttribute('src', `/content/${img.getAttribute('src')}`);
-  });
+  restoreFooterImages(container);
   return container;
 }
 

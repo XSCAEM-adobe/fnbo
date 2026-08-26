@@ -1,3 +1,5 @@
+@import url('brand.css');
+
 /*
  * Copyright 2020 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
@@ -10,34 +12,24 @@
  * governing permissions and limitations under the License.
  */
 
+/* Brand tokens (colors, fonts, heading sizes, spacing) come from brand.css.
+   The variables below are EDS-framework-specific (body font sizes, nav/header
+   heights) plus aliases mapping the framework heading-size names to brand tokens. */
 :root {
-  /* colors */
-  --background-color: white;
-  --light-color: #f8f8f8;
-  --dark-color: #505050;
-  --text-color: #131313;
-  --link-color: #3b63fb;
-  --link-hover-color: #1d3ecf;
-
-  /* fonts */
-  --body-font-family: roboto, roboto-fallback, sans-serif;
-  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif;
-
   /* body sizes */
-  --body-font-size-m: 22px;
-  --body-font-size-s: 19px;
-  --body-font-size-xs: 17px;
+  --body-font-size-m: 18px;
+  --body-font-size-s: 16px;
+  --body-font-size-xs: 14px;
 
-  /* heading sizes */
-  --heading-font-size-xxl: 55px;
-  --heading-font-size-xl: 44px;
-  --heading-font-size-l: 34px;
-  --heading-font-size-m: 27px;
-  --heading-font-size-s: 24px;
-  --heading-font-size-xs: 22px;
+  /* heading sizes — mobile-first, overridden at desktop below */
+  --heading-font-size-xxl: 36px;
+  --heading-font-size-xl: 28px;
+  --heading-font-size-l: 24px;
+  --heading-font-size-m: 20px;
+  --heading-font-size-s: 18px;
+  --heading-font-size-xs: 16px;
 
   /* nav heights */
-  --nav-height: 64px;
   --breadcrumbs-height: 34px;
   --header-height: var(--nav-height);
 }
@@ -57,18 +49,13 @@
 
 @media (width >= 900px) {
   :root {
-    /* body sizes */
-    --body-font-size-m: 18px;
-    --body-font-size-s: 16px;
-    --body-font-size-xs: 14px;
-
-    /* heading sizes */
-    --heading-font-size-xxl: 45px;
-    --heading-font-size-xl: 36px;
-    --heading-font-size-l: 28px;
-    --heading-font-size-m: 22px;
-    --heading-font-size-s: 20px;
-    --heading-font-size-xs: 18px;
+    /* heading sizes — desktop (from brand.css tokens) */
+    --heading-font-size-xxl: var(--heading-size-xxl);
+    --heading-font-size-xl: var(--heading-size-xl);
+    --heading-font-size-l: var(--heading-size-l);
+    --heading-font-size-m: var(--heading-size-m);
+    --heading-font-size-s: var(--heading-size-s);
+    --heading-font-size-xs: var(--heading-size-xs);
   }
 }
 
@@ -113,10 +100,11 @@ h4,
 h5,
 h6 {
   margin-top: 0.8em;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.5em;
   font-family: var(--heading-font-family);
-  font-weight: 600;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-color);
   scroll-margin: 40px;
 }
 
@@ -126,6 +114,17 @@ h3 { font-size: var(--heading-font-size-l); }
 h4 { font-size: var(--heading-font-size-m); }
 h5 { font-size: var(--heading-font-size-s); }
 h6 { font-size: var(--heading-font-size-xs); }
+
+/* default content typography — merged from FNBO source computed values */
+h3,
+h4,
+h5,
+h6 { font-weight: 900; }
+
+p {
+  line-height: 1.6;
+  color: var(--text-color);
+}
 
 p,
 dl,
@@ -180,17 +179,17 @@ button {
   display: inline-block;
   max-width: 100%;
   margin: 12px 0;
-  border: 2px solid transparent;
-  border-radius: 2.4em;
-  padding: 0.5em 1.2em;
+  border: 2px solid var(--brand-green);
+  border-radius: 4px;
+  padding: 0.6em 1.6em;
   font-family: var(--body-font-family);
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
-  background-color: var(--link-color);
-  color: var(--background-color);
+  background-color: var(--brand-green);
+  color: #fff;
   cursor: pointer;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -200,21 +199,35 @@ a.button:hover,
 a.button:focus,
 button:hover,
 button:focus {
-  background-color: var(--link-hover-color);
+  border-color: var(--brand-green-dark);
+  background-color: var(--brand-green-dark);
+  color: #fff;
   cursor: pointer;
 }
 
 button:disabled,
 button:disabled:hover {
+  border-color: var(--light-color);
   background-color: var(--light-color);
   cursor: unset;
 }
 
+/* secondary / outline button */
 a.button.secondary,
-button.secondary {
-  background-color: unset;
-  border: 2px solid currentcolor;
-  color: var(--text-color);
+button.secondary,
+a.button.outline,
+button.outline {
+  background-color: transparent;
+  border: 2px solid var(--brand-green);
+  color: var(--brand-green);
+}
+
+a.button.secondary:hover,
+button.secondary:hover,
+a.button.outline:hover,
+button.outline:hover {
+  background-color: var(--brand-green);
+  color: #fff;
 }
 
 main img {
@@ -240,13 +253,19 @@ main > .section {
 }
 
 main > .section > div {
-  max-width: 1200px;
+  max-width: var(--content-max-width);
   margin: auto;
   padding: 0 24px;
 }
 
 main > .section:first-of-type {
   margin-top: 0;
+}
+
+/* A section that ends in a full-bleed band (hero-banner) should butt flush
+   against the footer — drop its bottom margin so there's no white gap. */
+main > .section:has(> .hero-banner-wrapper:last-child) {
+  margin-bottom: 0;
 }
 
 @media (width >= 900px) {
@@ -256,9 +275,444 @@ main > .section:first-of-type {
 }
 
 /* section metadata */
+
+/* highlight — light tinted / grey band */
 main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
   margin: 0;
-  padding: 40px 0;
+  padding: var(--section-padding) 0;
 }
+
+/* brand-green — solid brand green band with white text (used by
+   section-metadata Style="brand-green" in imported content) */
+main .section.brand-green {
+  background-color: var(--brand-green);
+  color: #fff;
+  margin: 0;
+  padding: var(--section-padding) 0;
+}
+
+main .section.brand-green h1,
+main .section.brand-green h2,
+main .section.brand-green h3,
+main .section.brand-green h4,
+main .section.brand-green h5,
+main .section.brand-green h6,
+main .section.brand-green p,
+main .section.brand-green a:any-link {
+  color: #fff;
+}
+
+main .section.brand-green a.button:any-link {
+  background-color: #fff;
+  border-color: #fff;
+  color: var(--brand-green);
+}
+
+main .section.brand-green a.button:hover,
+main .section.brand-green a.button:focus {
+  background-color: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+
+/* legacy dark variant */
+main .section.dark {
+  background-color: var(--dark-color);
+  color: #fff;
+  margin: 0;
+  padding: var(--section-padding) 0;
+}
+
+/* Brand strip: the "fnbo - The great big small bank" logo lockup is authored as
+   a lone default-content image whose section-metadata Style="brand-green" could
+   not be applied (the homepage imported as a single un-split section). Target the
+   wrapper that holds only that image and give it the solid green band + centered
+   logo treatment from the source. */
+main .default-content-wrapper:has(> p:only-child > picture img[alt*="great big small bank"]) {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 40px 16px;
+  background-color: var(--brand-green);
+  text-align: center;
+}
+
+main .default-content-wrapper:has(> p:only-child > picture img[alt*="great big small bank"]) img {
+  display: inline-block;
+  width: auto;
+  max-width: 480px;
+  height: auto;
+}
+
+/* "Explore More Financial Tips & Topics" — the source centers this intro line
+   + button block that follows the article cards. Center the whole wrapper. */
+/* stylelint-disable-next-line no-descending-specificity */
+main .default-content-wrapper:has(a.button[href="/insights"]) {
+  text-align: center;
+}
+
+/* "Read More Insights" (savings) — the source centers this standalone CTA that
+   follows the "Tips on How to Save Money" article cards. It imports as a lone
+   .button-container paragraph; center it. */
+main .default-content-wrapper > .button-container:has(a.button[href="/insights/personal-finance"]) {
+  text-align: center;
+}
+
+/* ===========================================================================
+   free-checking page — per-section fixes (all blocks live in one un-split
+   section, so target by unique headings / links / ids)
+   =========================================================================== */
+
+/* 1. Breathing room after the hero before "Why FNBO Free Checking?" — source
+      opens the first content section with ~40px of top spacing. */
+main .section > .hero-banner-wrapper + .columns-media-wrapper {
+  margin-top: 40px;
+}
+
+/* 6. FAQ heading is centered on the source. */
+main .default-content-wrapper > h2#faqs {
+  text-align: center;
+}
+
+/* 8. BankOn Certified — the cert badge sits to the LEFT of the paragraph.
+      Float the badge image so the heading + copy wrap to its right. */
+main .default-content-wrapper > picture:has(img[src*="bank-on-free"]) {
+  float: left;
+  width: 140px;
+  height: 140px;
+  margin: 0 24px 8px 0;
+  shape-margin: 16px;
+}
+
+/* The BankOn badge is a square (~400x400) asset, but Scene7 serves it on a
+   padded 2000x400 canvas, so width:100%/height:auto collapses it to a thin
+   strip. Pin a square box and object-fit:cover to crop to the centred badge. */
+/* stylelint-disable-next-line no-descending-specificity */
+main .default-content-wrapper > picture:has(img[src*="bank-on-free"]) img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 9. "ONE THAT'S FREE." trailing CTA — full-bleed brand-green band with white
+      text and a white "Open an Account" button. The heading, its paragraph and
+      the Open-an-Account button-container form a contiguous run inside the
+      trailing default-content-wrapper; band them together and clear the BankOn
+      float above. */
+main .default-content-wrapper > h3#one-thats-free-2,
+main .default-content-wrapper > h3#one-thats-free-2 + p,
+main .default-content-wrapper > h3#one-thats-free-2 + p + .button-container {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding-right: 24px;
+  padding-left: 24px;
+  background-color: var(--brand-green);
+  color: #fff;
+  text-align: center;
+}
+
+main .default-content-wrapper > h3#one-thats-free-2 {
+  clear: both;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 40px;
+}
+
+main .default-content-wrapper > h3#one-thats-free-2 + p {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 8px;
+}
+
+main .default-content-wrapper > h3#one-thats-free-2 + p + .button-container {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 8px;
+  padding-bottom: 40px;
+}
+
+/* white text/links inside the green CTA band */
+main .default-content-wrapper > h3#one-thats-free-2,
+main .default-content-wrapper > h3#one-thats-free-2 + p {
+  color: #fff;
+}
+
+/* white Open-an-Account button with green text */
+main .default-content-wrapper > h3#one-thats-free-2 + p + .button-container a.button:any-link {
+  border-color: #fff;
+  background-color: #fff;
+  color: var(--brand-green-dark);
+}
+
+main .default-content-wrapper > h3#one-thats-free-2 + p + .button-container a.button:hover,
+main .default-content-wrapper > h3#one-thats-free-2 + p + .button-container a.button:focus {
+  border-color: #fff;
+  background-color: var(--light-color);
+  color: var(--brand-green-dark);
+}
+
+/* These savings-band/card selectors are lower-specificity than some earlier
+   free-checking rules but never target the same elements (distinct wrapper
+   classes / heading ids), so the source-order ordering rule is a false
+   positive here. */
+/* stylelint-disable no-descending-specificity */
+
+/* 10a. "View All Savings Products In My Area" — full-bleed solid-green band
+       with white centered heading and a white "Start Saving" button. Grouped
+       into .savings-band-green by groupSavingsBands() in scripts.js. */
+main .default-content-wrapper .savings-band-green {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 48px 24px;
+  background-color: var(--brand-green);
+  color: #fff;
+  text-align: center;
+}
+
+main .default-content-wrapper .savings-band-green h3 {
+  margin: 0;
+  color: #fff;
+}
+
+main .default-content-wrapper .savings-band-green .button-container {
+  margin: 20px 0 0;
+}
+
+/* white "Start Saving" button with green text on the green band */
+main .default-content-wrapper .savings-band-green a.button:any-link {
+  border-color: #fff;
+  background-color: #fff;
+  color: var(--brand-green-dark);
+}
+
+main .default-content-wrapper .savings-band-green a.button:hover,
+main .default-content-wrapper .savings-band-green a.button:focus {
+  border-color: #fff;
+  background-color: var(--light-color);
+  color: var(--brand-green-dark);
+}
+
+/* 10b. "Feel good about your financial journey" — white card (border + shadow)
+       with the ~200px "Start Your Review" badge on the left and the heading,
+       copy and "Start Now!" CTA on the right. Grouped into .savings-card, which
+       sits inside a light-grey full-bleed band (.savings-card-band) so the white
+       card stands out against a grey backdrop (matches the source). */
+main .default-content-wrapper .savings-card-band {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 40px max(24px, calc(50vw - (var(--content-max-width) / 2)));
+  background-color: var(--light-color);
+}
+
+main .default-content-wrapper .savings-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+  gap: 16px 40px;
+  margin: 0;
+  padding: 40px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px -1px rgb(0 0 0 / 16%);
+  background-color: var(--background-color);
+}
+
+/* badge spans both text rows on the left; the heading, copy and CTA stack in
+   the right column. The DM auto-block serves a wid=2000 rendition of the
+   ~200x201 badge (padded), so pin the box to native aspect and cover-crop. */
+main .default-content-wrapper .savings-card > picture {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+}
+
+main .default-content-wrapper .savings-card > picture img {
+  width: 200px;
+  height: 201px;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+main .default-content-wrapper .savings-card > h2 {
+  grid-column: 2;
+  margin: 0;
+}
+
+main .default-content-wrapper .savings-card > p {
+  grid-column: 2;
+  margin: 0;
+}
+
+main .default-content-wrapper .savings-card > .button-container {
+  grid-column: 2;
+  margin: 4px 0 0;
+}
+
+@media (width <= 699px) {
+  main .default-content-wrapper .savings-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 24px;
+  }
+
+  main .default-content-wrapper .savings-card > picture {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  main .default-content-wrapper .savings-card > h2,
+  main .default-content-wrapper .savings-card > p,
+  main .default-content-wrapper .savings-card > .button-container {
+    grid-column: 1;
+  }
+}
+
+/* 11. Savings YouTube video row — widen toward the page edges. The default
+      content width caps the 3-up row at the content max-width; the source
+      stretches it nearly full-bleed. Break the wrapper out to the viewport
+      with a comfortable side gutter. */
+main .section > .video-wrapper {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 0 40px;
+}
+
+/* 12. "Ever So Free" — full-bleed photo band (savings). The heading,
+      "Overdraft fees are over." copy and Learn More CTA are grouped into a
+      single .savings-esf-band by groupSavingsBands() so ONE background photo
+      covers the whole band (no seams, no parallax — it scrolls with the page).
+      White text, left-rail aligned, white Learn More button with green text. */
+main .default-content-wrapper .savings-esf-band {
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 96px 24px 96px max(24px, calc(50vw - (var(--content-max-width) / 2)));
+  background-image: linear-gradient(rgb(0 0 0 / 35%), rgb(0 0 0 / 35%)), url('https://s7d1.scene7.com/is/image/fnnistage/young-lady-gold-tank-top-on-smart-phone-2x?ts=1767712522031&dpr=off');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+  text-align: left;
+}
+
+main .default-content-wrapper .savings-esf-band > h2#ever-so-free {
+  margin: 0;
+  color: #fff;
+}
+
+main .default-content-wrapper .savings-esf-band > p {
+  margin: 8px 0 0;
+  color: #fff;
+}
+
+main .default-content-wrapper .savings-esf-band > .button-container {
+  margin: 16px 0 0;
+}
+
+/* white Learn More button with green text */
+main .default-content-wrapper .savings-esf-band a.button:any-link {
+  border-color: #fff;
+  background-color: #fff;
+  color: var(--brand-green-dark);
+}
+
+main .default-content-wrapper .savings-esf-band a.button:hover,
+main .default-content-wrapper .savings-esf-band a.button:focus {
+  border-color: #fff;
+  background-color: var(--light-color);
+  color: var(--brand-green-dark);
+}
+
+/* stylelint-enable no-descending-specificity */
+
+/* 13. "Also of Interest" related-links strip (savings/free-checking). The
+      source renders this as a white band BELOW the green footer: an italic
+      green "Also of Interest" label followed by related links separated by
+      vertical pipes. groupSavingsBands() wraps the imported <p> + <ul> into
+      .also-of-interest and relocates it after <footer>. Ordering-rule
+      false-positive vs earlier .section.brand-green rules — distinct elements. */
+/* stylelint-disable no-descending-specificity */
+.also-of-interest {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 24px;
+  padding: 10px 50px 10px 30px;
+  border-top: 1px solid #e0e0e0;
+  background-color: var(--background-color);
+}
+
+/* italic dark-green "Also of Interest" label (source: #003b27, 24px, 400) */
+.also-of-interest > p {
+  margin: 0;
+  font-style: italic;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--brand-green-dark);
+}
+
+/* links laid out inline on one row, separated by vertical pipes */
+.also-of-interest > ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.also-of-interest > ul li {
+  margin: 0;
+  padding: 0 24px;
+  border-right: 1px solid #c4c4c4;
+}
+
+.also-of-interest > ul li:last-child {
+  border-right: 0;
+}
+
+/* links are dark grey/black (source: #444), 16px, no underline */
+.also-of-interest > ul a:any-link {
+  color: var(--text-color);
+  font-size: var(--body-font-size-s);
+  text-decoration: none;
+}
+
+.also-of-interest > ul a:hover {
+  color: var(--brand-green);
+  text-decoration: underline;
+}
+
+/* keep the label + link row on one line on wider viewports (source layout).
+   Placed after the base rules so nowrap overrides the base flex-wrap. */
+@media (width >= 700px) {
+  .also-of-interest,
+  .also-of-interest > ul {
+    flex-wrap: nowrap;
+  }
+
+  .also-of-interest > p {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .also-of-interest > ul a:any-link {
+    white-space: nowrap;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

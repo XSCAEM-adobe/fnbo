@@ -22,6 +22,252 @@ import {
   applyTargetHeroMboxIfConfigured,
 } from './target.js';
 
+// --- BEGIN DM/Scene7 auto-block (excat-generated) ---
+
+const DM_BREAKPOINTS = [
+  { media: '(min-width: 600px)', width: 2000 }, // desktop
+  { width: 750 }, // mobile / fallback (no media)
+];
+
+// ---- Canonical helpers (keep in sync with dm-scene7-helpers.js) ----
+function detectDynamicMediaUrl(urlStr) {
+  // Reject relative URLs up front — without this guard, the auto-block
+  // scans every anchor in <main> and a normal site link like
+  // `<a href="/is/image/foo">` would be classified as DM and replaced by
+  // a <picture>. Keep byte-identical with dm-scene7-helpers.js.
+  if (!/^(https?:\/\/|\/\/)/i.test(urlStr)) return false;
+  let u;
+  try { u = new URL(urlStr, 'https://x/'); } catch { return false; }
+  // Scene7 detected by path alone — hostname is irrelevant because
+  // customer sites routinely CNAME a vanity domain to Scene7 (e.g.
+  // media-assets.brand.example).
+  if (u.pathname.startsWith('/is/image/')) {
+    return 'scene7';
+  }
+  if (/^delivery-p\d+-e\d+\.adobeaemcloud\.com$/.test(u.hostname)
+      && u.pathname.startsWith('/adobe/assets/urn:')) {
+    return 'dm-openapi';
+  }
+  return false;
+}
+
+// True when a Scene7 URL requests a transparent raster (e.g. product cutouts,
+// logos, card art). A plain fmt=png/webp appended after $TransparentPNG$ makes
+// Scene7 return an opaque RGB raster whose transparent areas flatten to a black
+// box, so the renderer must request the alpha-capable codec (png-alpha /
+// webp-alpha) instead. Signals: the $TransparentPNG$ template preset, an
+// explicit fmt=png(-alpha), or a .png path.
+function scene7WantsAlpha(src) {
+  return /\$transparentpng\$/i.test(src)
+    || /(?:^|[?&])fmt=png(?:-alpha)?(?:&|$)/i.test(src)
+    || /\.png(?:[?&]|$)/i.test(src);
+}
+
+function buildScene7Rendition(src, { width, format }) {
+  // Manipulate the query string verbatim — URL.searchParams percent-
+  // encodes `$`, but Scene7's IS/Image template-parameter syntax
+  // (`$image=`, `$badge=`, etc.) requires the literal `$`. Encoded
+  // form is silently dropped by Scene7's parser, returning the bare
+  // template image instead of the personalized composite.
+  const normalized = src.startsWith('//') ? `https:${src}` : src;
+  const qIdx = normalized.indexOf('?');
+  const base = qIdx >= 0 ? normalized.slice(0, qIdx) : normalized;
+  const query = qIdx >= 0 ? normalized.slice(qIdx + 1) : '';
+  const pairs = query.split('&').filter((p) => p);
+  // Alpha assets: request the alpha-capable Scene7 codec (png-alpha / webp-alpha)
+  // and DROP the $TransparentPNG$ preset. A plain fmt=png/webp appended after
+  // $TransparentPNG$ makes Scene7 return an opaque RGB raster (transparent areas
+  // flatten to black); the *-alpha codecs preserve the alpha channel.
+  const alpha = scene7WantsAlpha(src);
+  const outFormat = alpha ? `${format}-alpha` : format;
+  const filtered = pairs.filter((p) => {
+    const k = p.split('=')[0];
+    if (k === 'wid' || k === 'fmt') return false;
+    if (alpha && /^\$transparentpng\$$/i.test(p)) return false;
+    return true;
+  });
+  filtered.push(`wid=${width}`);
+  filtered.push(`fmt=${outFormat}`);
+  return `${base}?${filtered.join('&')}`;
+}
+
+function buildDmOpenApiRendition(src, { width }) {
+  // Synthetic base — see buildScene7Rendition above.
+  const url = new URL(src, 'https://x/');
+  url.searchParams.set('width', String(width));
+  return url.toString();
+}
+
+function findDmOnAnchor(a) {
+  if (!a || typeof a.getAttribute !== 'function') return null;
+  const href = a.getAttribute('href') || '';
+  if (detectDynamicMediaUrl(href)) return { mode: 'unlinked', dmUrl: href };
+  const title = a.getAttribute('title') || '';
+  if (detectDynamicMediaUrl(title)) return { mode: 'linked', dmUrl: title };
+  return null;
+}
+
+// True when the given anchor is the sole child of a markdown-generated
+// <p> wrapper that should be unwrapped so the picture becomes a top-
+// level grid cell. P only — NEVER DIV: EDS block content uses <div>
+// cells (cards/carousel/columns decorators detect image cells via
+// `div.querySelector('picture')`); unwrapping a <div> collapses the
+// block's row structure and stops images rendering inside blocks.
+// Text-node guard: <p>caption <a href="DM">alt</a></p> must NOT be
+// treated as unwrappable — replacing the parent would delete "caption".
+// Comparing trimmed textContent of <p> against the anchor's catches this.
+function isUnwrappableMarkdownParagraph(anchor) {
+  const parent = anchor && anchor.parentElement;
+  if (!parent || parent.tagName !== 'P') return false;
+  if (parent.children.length !== 1 || parent.firstElementChild !== anchor) return false;
+  return parent.textContent.trim() === anchor.textContent.trim();
+}
+
+// Sentinel used by the transformer when source <img> alt is empty. Document
+// view shows the visible cue; we translate it back to alt="" here so screen
+// readers correctly skip decorative images. If an author edits the link
+// text away from the sentinel, their edit becomes the real alt — a11y
+// improves. Must stay byte-identical to dm-scene7-helpers.js EMPTY_ALT_SENTINEL.
+const EMPTY_ALT_SENTINEL = 'Image without alt text';
+
+function linkTextToAlt(linkText) {
+  return linkText === EMPTY_ALT_SENTINEL ? '' : linkText;
+}
+
+// ---- Rendering ----
+function appendSource(picture, { type, srcset, media }) {
+  const source = document.createElement('source');
+  if (type) source.type = type;
+  source.srcset = srcset;
+  if (media) source.setAttribute('media', media);
+  picture.append(source);
+}
+
+function renderScene7Picture(src, alt) {
+  const picture = document.createElement('picture');
+  // Alpha-bearing assets (product cutouts, logos, card art) must not use jpeg —
+  // it has no transparency and flattens to a black box. WebP keeps alpha, and
+  // the fallback <img> uses png; opaque assets keep the webp + jpeg tracks.
+  const alpha = scene7WantsAlpha(src);
+  const fallbackFormat = alpha ? 'png' : 'jpg';
+  DM_BREAKPOINTS.forEach((bp) => appendSource(picture, {
+    type: 'image/webp',
+    srcset: buildScene7Rendition(src, { width: bp.width, format: 'webp' }),
+    media: bp.media,
+  }));
+  if (!alpha) {
+    DM_BREAKPOINTS.forEach((bp) => appendSource(picture, {
+      type: 'image/jpeg',
+      srcset: buildScene7Rendition(src, { width: bp.width, format: 'jpg' }),
+      media: bp.media,
+    }));
+  }
+  const img = document.createElement('img');
+  img.src = buildScene7Rendition(src, { width: 750, format: fallbackFormat });
+  img.alt = alt;
+  img.loading = 'lazy';
+  picture.append(img);
+  return picture;
+}
+
+function renderDmOpenApiPicture(src, alt) {
+  const picture = document.createElement('picture');
+  DM_BREAKPOINTS.forEach((bp) => appendSource(picture, {
+    srcset: buildDmOpenApiRendition(src, { width: bp.width }),
+    media: bp.media,
+  }));
+  const img = document.createElement('img');
+  img.src = buildDmOpenApiRendition(src, { width: 750 });
+  img.alt = alt;
+  img.loading = 'lazy';
+  picture.append(img);
+  return picture;
+}
+
+function buildDynamicMediaImages(main) {
+  // Anchors carrying DM URLs from the markdown round-trip. The transformer
+  // turns <img DM> into <a href=DM-URL> (or <a href=/page title=DM-URL>
+  // for the linked case); CommonMark's [text](url "title") syntax
+  // survives docx and the title attribute round-trips back to a real
+  // HTML attribute at render time.
+  main.querySelectorAll('a').forEach((a) => {
+    const match = findDmOnAnchor(a);
+    if (!match) return;
+
+    const { mode, dmUrl } = match;
+    // Translate link text back to alt: sentinel ('Image without alt text')
+    // means the source had alt="" — render with alt="" for a11y. Any other
+    // text (including the author's edit of the placeholder) is real alt.
+    const alt = linkTextToAlt(a.textContent.trim());
+    const picture = detectDynamicMediaUrl(dmUrl) === 'scene7'
+      ? renderScene7Picture(dmUrl, alt)
+      : renderDmOpenApiPicture(dmUrl, alt);
+
+    // decorateMain() calls decorateButtons() BEFORE buildAutoBlocks(). At
+    // that point every DM anchor (linked or unlinked) looks like a plain
+    // text link — no <img> yet — so decorateButtons promotes it to a button
+    // and adds `button-container` to its sole-child <p>/<div> parent. The
+    // unwanted border around the rebuilt <picture> is the visible symptom;
+    // for unlinked-in-<div> the leftover `button-container` on a block-cell
+    // <div> can also confuse block decorators that filter on classList.
+    // Strip both classes BEFORE rebuilding so the cleanup covers every
+    // branch below (replaceChildren / replaceWith / parent-replaceWith).
+    // Idempotent — no-op when the classes aren't present.
+    a.classList.remove('button', 'primary', 'secondary');
+    if (a.classList.length === 0) a.removeAttribute('class');
+    const buttonContainer = a.parentElement;
+    if (
+      buttonContainer
+      && buttonContainer.classList.contains('button-container')
+      && buttonContainer.children.length === 1
+    ) {
+      buttonContainer.classList.remove('button-container');
+      if (buttonContainer.classList.length === 0) buttonContainer.removeAttribute('class');
+    }
+
+    if (mode === 'linked') {
+      // Keep the outer <a> and its navigation href. Drop the DM URL from title
+      // (it's been consumed) and replace the anchor's content with the picture.
+      a.removeAttribute('title');
+      a.replaceChildren(picture);
+      return;
+    }
+
+    // Unlinked: the whole anchor is just a carrier for the DM URL.
+    // If it's the markdown-generated <p> wrapper around a standalone
+    // image, unwrap so the picture becomes a top-level grid cell.
+    // NEVER unwrap <div> — those are block-content cells (cards,
+    // carousel, columns); unwrapping them collapses the block's row
+    // structure and decorators can't find their image cells.
+    if (isUnwrappableMarkdownParagraph(a)) {
+      a.parentElement.replaceWith(picture);
+    } else {
+      a.replaceWith(picture);
+    }
+  });
+}
+
+// Register the DM dispatcher for createOptimizedPicture interop.
+// The aem.js patch checks for this hook and delegates DM URLs to our
+// renderer, so block decorators that call createOptimizedPicture(img.src, ...)
+// on Scene7 IS/Image template URLs or DM Open API URLs preserve their
+// query parameters instead of having them stripped by the path-only
+// optimizer in aem.js. No-op when the auto-block is not installed
+// (hook unregistered → aem.js falls through to standard logic).
+//
+// Returning null for non-DM URLs lets the caller (createOptimizedPicture)
+// fall through to its standard path-only optimization. This is the
+// regression guard for non-DM images on the same page.
+window.__dmRender__ = (src, alt) => {
+  const family = detectDynamicMediaUrl(src);
+  if (!family) return null;
+  return family === 'scene7'
+    ? renderScene7Picture(src, alt)
+    : renderDmOpenApiPicture(src, alt);
+};
+
+// --- END DM/Scene7 auto-block ---
+
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
@@ -67,6 +313,7 @@ function autolinkModals(doc) {
 function buildAutoBlocks(main) {
   try {
     if (!main.querySelector('.hero')) buildHeroBlock(main);
+    buildDynamicMediaImages(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -126,10 +373,108 @@ function decorateSections(main) {
 }
 
 /**
+ * Move instrumentation attributes from a source element to a target element.
+ * @param {Element} from The element to copy instrumentation from
+ * @param {Element} to The element to copy instrumentation to
+ */
+export function moveInstrumentation(from, to) {
+  if (!from || !to) return;
+  const instrumentationAttrs = [...from.attributes]
+    .map(({ nodeName }) => nodeName)
+    .filter((attr) => attr.startsWith('data-aue-') || attr.startsWith('data-richtext-'));
+  instrumentationAttrs.forEach((attr) => {
+    to.setAttribute(attr, from.getAttribute(attr));
+    from.removeAttribute(attr);
+  });
+}
+
+/**
+ * Savings page: two flat runs of default content need to be grouped into
+ * containers so they can be styled as discrete regions (a full-bleed green
+ * "View All Savings Products" band and a bordered white "Feel good…" card).
+ * The import lands them as loose siblings in one default-content-wrapper, so
+ * wrap each run in a div we can target. Scoped by the savings heading IDs, so
+ * it is a no-op on every other page.
+ * @param {Element} main The main element
+ */
+function groupSavingsBands(main) {
+  const wrap = (startEl, endBeforeEl, className) => {
+    if (!startEl) return;
+    const group = document.createElement('div');
+    group.className = className;
+    startEl.parentNode.insertBefore(group, startEl);
+    let node = startEl;
+    while (node && node !== endBeforeEl) {
+      const next = node.nextElementSibling;
+      group.append(node);
+      node = next;
+    }
+  };
+
+  const viewAll = main.querySelector('#view-all-savings-products-in-my-area');
+  const feelGood = main.querySelector('#feel-good-about-your-financial-journey');
+  const tips = main.querySelector('#tips-on-how-to-save-money');
+  const everSoFree = main.querySelector('#ever-so-free');
+  const feelGoodImg = feelGood
+    && feelGood.previousElementSibling
+    && feelGood.previousElementSibling.tagName === 'PICTURE'
+    ? feelGood.previousElementSibling
+    : feelGood;
+
+  // Green band: heading + Start Saving button (everything up to the badge/card).
+  wrap(viewAll, feelGoodImg, 'savings-band-green');
+  // White card: badge + heading + copy + Start Now button (up to the next
+  // heading). Then wrap that card in a light-grey full-bleed band so the white
+  // card stands out against a grey backdrop (matches the source).
+  wrap(feelGoodImg, tips, 'savings-card');
+  const card = main.querySelector('.savings-card');
+  if (card) {
+    const band = document.createElement('div');
+    band.className = 'savings-card-band';
+    card.parentNode.insertBefore(band, card);
+    band.append(card);
+  }
+
+  // "Ever So Free" photo band: wrap the heading + "Overdraft fees are over."
+  // copy + Learn More CTA into one container so a single (non-parallax)
+  // background photo covers the whole band with no seams. Stops at the Zelle
+  // disclaimer paragraph that follows.
+  if (everSoFree) {
+    let stopAt = everSoFree.nextElementSibling;
+    // walk forward past heading's <p> and the button-container to the first
+    // paragraph that begins the Zelle legal text.
+    while (stopAt && !(stopAt.tagName === 'P' && /Zelle/.test(stopAt.textContent))) {
+      stopAt = stopAt.nextElementSibling;
+    }
+    wrap(everSoFree, stopAt, 'savings-esf-band');
+  }
+
+  // "Also of Interest" related-links strip: on the source this white band sits
+  // BELOW the footer, but it imports into main as a <p>Also of Interest</p>
+  // followed by a <ul> of links. Wrap the pair and relocate it after <footer>
+  // so it renders as the source's below-footer band.
+  const aoiLabel = [...main.querySelectorAll('.default-content-wrapper > p')]
+    .find((p) => p.textContent.trim() === 'Also of Interest'
+      && p.nextElementSibling && p.nextElementSibling.tagName === 'UL');
+  if (aoiLabel) {
+    const aoiList = aoiLabel.nextElementSibling;
+    const aoi = document.createElement('div');
+    aoi.className = 'also-of-interest';
+    aoiLabel.parentNode.insertBefore(aoi, aoiLabel);
+    aoi.append(aoiLabel, aoiList);
+    // Relocate below the footer (a sibling of main in the page skeleton, present
+    // from initial load) so it renders as the source's below-footer band.
+    const footer = document.querySelector('footer');
+    if (footer && footer.parentNode) {
+      footer.parentNode.insertBefore(aoi, footer.nextSibling);
+    }
+  }
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
-// eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   // hopefully forward compatible button decoration
   decorateButtons(main);
@@ -137,6 +482,10 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  // Group after decorateBlocks so the wrapper divs (which sit at the
+  // section > div > div block position) are never mistaken for EDS blocks and
+  // no phantom block JS/CSS load is attempted for them.
+  groupSavingsBands(main);
 }
 
 /**

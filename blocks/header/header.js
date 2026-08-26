@@ -1,243 +1,353 @@
-import { fetchPlaceholders, getMetadata } from '../../scripts/aem.js';
+import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
-// media query match that indicates mobile/tablet width
+// Desktop breakpoint — mobile behavior is implemented in a later phase.
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
-function closeOnEscape(e) {
-  if (e.code === 'Escape') {
-    const nav = document.getElementById('nav');
-    const navSections = nav.querySelector('.nav-sections');
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections);
-      navSectionExpanded.focus();
-    } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections);
-      nav.querySelector('button').focus();
-    }
-  }
-}
-
-function closeOnFocusLost(e) {
-  const nav = e.currentTarget;
-  if (!nav.contains(e.relatedTarget)) {
-    const navSections = nav.querySelector('.nav-sections');
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections, false);
-    } else if (!isDesktop.matches) {
-      // eslint-disable-next-line no-use-before-define
-      toggleMenu(nav, navSections, false);
-    }
-  }
-}
-
-function openOnKeydown(e) {
-  const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
-  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
-    // eslint-disable-next-line no-use-before-define
-    toggleAllNavSections(focused.closest('.nav-sections'));
-    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
-  }
-}
-
-function focusNavSection() {
-  document.activeElement.addEventListener('keydown', openOnKeydown);
-}
-
 /**
- * Toggles all nav sections
- * @param {Element} sections The container element
- * @param {Boolean} expanded Whether the element should be expanded or collapsed
+ * Close any open category dropdown panels within the secondary nav row.
+ * @param {Element} scope element containing the category items
  */
-function toggleAllNavSections(sections, expanded = false) {
-  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
+function closeAllPanels(scope) {
+  scope.querySelectorAll('.nav-cat.is-open').forEach((cat) => {
+    cat.classList.remove('is-open');
+    const trigger = cat.querySelector(':scope > button');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
   });
 }
 
 /**
- * Toggles the entire nav
- * @param {Element} nav The container element
- * @param {Element} navSections The nav sections within the container element
- * @param {*} forceExpanded Optional param to force nav expand behavior when not null
+ * Build the FDIC disclosure bar (section 0 of the fragment).
+ * @param {Element} sectionEl raw fragment section
+ * @returns {Element}
  */
-function toggleMenu(nav, navSections, forceExpanded = null) {
-  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
-  const button = nav.querySelector('.nav-hamburger button');
-  document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
-  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
-  // enable nav dropdown keyboard accessibility
-  const navDrops = navSections.querySelectorAll('.nav-drop');
-  if (isDesktop.matches) {
-    navDrops.forEach((drop) => {
-      if (!drop.hasAttribute('tabindex')) {
-        drop.setAttribute('tabindex', 0);
-        drop.addEventListener('focus', focusNavSection);
-      }
-    });
-  } else {
-    navDrops.forEach((drop) => {
-      drop.removeAttribute('tabindex');
-      drop.removeEventListener('focus', focusNavSection);
-    });
-  }
-
-  // enable menu collapse on escape keypress
-  if (!expanded || isDesktop.matches) {
-    // collapse menu on escape press
-    window.addEventListener('keydown', closeOnEscape);
-    // collapse menu on focus lost
-    nav.addEventListener('focusout', closeOnFocusLost);
-  } else {
-    window.removeEventListener('keydown', closeOnEscape);
-    nav.removeEventListener('focusout', closeOnFocusLost);
-  }
-}
-
-function getDirectTextContent(menuItem) {
-  const menuLink = menuItem.querySelector(':scope > a');
-  if (menuLink) {
-    return menuLink.textContent.trim();
-  }
-  return Array.from(menuItem.childNodes)
-    .filter((n) => n.nodeType === Node.TEXT_NODE)
-    .map((n) => n.textContent)
-    .join(' ');
-}
-
-async function buildBreadcrumbsFromNavTree(nav, currentUrl) {
-  const crumbs = [];
-
-  const homeUrl = document.querySelector('.nav-brand a[href]').href;
-
-  let menuItem = Array.from(nav.querySelectorAll('a')).find((a) => a.href === currentUrl);
-  if (menuItem) {
-    do {
-      const link = menuItem.querySelector(':scope > a');
-      crumbs.unshift({ title: getDirectTextContent(menuItem), url: link ? link.href : null });
-      menuItem = menuItem.closest('ul')?.closest('li');
-    } while (menuItem);
-  } else if (currentUrl !== homeUrl) {
-    crumbs.unshift({ title: getMetadata('og:title'), url: currentUrl });
-  }
-
-  const placeholders = await fetchPlaceholders();
-  const homePlaceholder = placeholders.breadcrumbsHomeLabel || 'Home';
-
-  crumbs.unshift({ title: homePlaceholder, url: homeUrl });
-
-  // last link is current page and should not be linked
-  if (crumbs.length > 1) {
-    crumbs[crumbs.length - 1].url = null;
-  }
-  crumbs[crumbs.length - 1]['aria-current'] = 'page';
-  return crumbs;
-}
-
-async function buildBreadcrumbs() {
-  const breadcrumbs = document.createElement('nav');
-  breadcrumbs.className = 'breadcrumbs';
-
-  const crumbs = await buildBreadcrumbsFromNavTree(document.querySelector('.nav-sections'), document.location.href);
-
-  const ol = document.createElement('ol');
-  ol.append(...crumbs.map((item) => {
-    const li = document.createElement('li');
-    if (item['aria-current']) li.setAttribute('aria-current', item['aria-current']);
-    if (item.url) {
-      const a = document.createElement('a');
-      a.href = item.url;
-      a.textContent = item.title;
-      li.append(a);
-    } else {
-      li.textContent = item.title;
-    }
-    return li;
-  }));
-
-  breadcrumbs.append(ol);
-  return breadcrumbs;
+function buildFdicBar(sectionEl) {
+  const bar = document.createElement('div');
+  bar.className = 'nav-fdic';
+  bar.append(...sectionEl.childNodes);
+  return bar;
 }
 
 /**
- * loads and decorates the header, mainly the nav
+ * Build the brand row (logo).
+ * @param {Element} sectionEl raw fragment section
+ * @returns {Element}
+ */
+function buildBrand(sectionEl) {
+  const brand = document.createElement('div');
+  brand.className = 'nav-brand';
+  brand.append(...sectionEl.childNodes);
+  const link = brand.querySelector('a');
+  if (link) link.setAttribute('aria-label', 'FNBO Home');
+  return brand;
+}
+
+/**
+ * Build the tools cluster (utility links + Log In).
+ * @param {Element} sectionEl raw fragment section
+ * @returns {Element}
+ */
+function buildTools(sectionEl) {
+  const tools = document.createElement('div');
+  tools.className = 'nav-tools';
+  tools.append(...sectionEl.childNodes);
+  // The standalone paragraph link is the primary CTA (Log In); the following
+  // <ul> (if present) is the Log In dropdown (account portals + help/enroll).
+  const ctaWrapper = tools.querySelector(':scope > p');
+  const cta = ctaWrapper ? ctaWrapper.querySelector('a') : null;
+  if (cta) {
+    cta.classList.add('nav-login');
+    ctaWrapper.classList.add('nav-login-wrapper');
+    const menu = ctaWrapper.nextElementSibling;
+    if (menu && menu.tagName === 'UL') {
+      // Wrap CTA + menu in a dropdown container.
+      const dropdown = document.createElement('div');
+      dropdown.className = 'nav-login-dropdown';
+      ctaWrapper.replaceWith(dropdown);
+      dropdown.append(ctaWrapper);
+      menu.classList.add('nav-login-menu');
+      dropdown.append(menu);
+      cta.setAttribute('aria-expanded', 'false');
+      cta.addEventListener('click', (e) => {
+        e.preventDefault();
+        const open = dropdown.classList.toggle('is-open');
+        cta.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+  }
+  return tools;
+}
+
+/**
+ * Split the sections tree into: the green-bar section list (level 1) and,
+ * for each section, its category list (level 2) with dropdown panels (level 3).
+ * Fully data-driven — reads whatever the fragment provides.
+ * @param {Element} sectionEl raw fragment section containing the top <ul>
+ * @returns {{ bar: Element, sub: Element }}
+ */
+function buildSections(sectionEl) {
+  const topUl = sectionEl.querySelector(':scope > ul');
+
+  // Green-bar top-level section list.
+  const bar = document.createElement('div');
+  bar.className = 'nav-sections';
+  const barList = document.createElement('ul');
+  barList.className = 'nav-section-list';
+  bar.append(barList);
+
+  // White secondary row — holds every section's categories (only the active
+  // section's group is visible; the rest are hidden but present in the DOM).
+  const sub = document.createElement('div');
+  sub.className = 'nav-subnav';
+  const subList = document.createElement('div');
+  subList.className = 'nav-cat-list';
+  sub.append(subList);
+
+  const sections = [];
+
+  Array.from(topUl.children).forEach((li, sectionIndex) => {
+    const sectionLink = li.querySelector(':scope > a');
+    const categoriesUl = li.querySelector(':scope > ul');
+
+    // Top-level section entry in the green bar.
+    const barItem = document.createElement('li');
+    barItem.className = 'nav-section';
+    const barBtn = document.createElement('a');
+    barBtn.className = 'nav-section-link';
+    barBtn.textContent = sectionLink ? sectionLink.textContent.trim() : '';
+    if (sectionLink) barBtn.href = sectionLink.getAttribute('href');
+    barItem.append(barBtn);
+    barList.append(barItem);
+
+    // Build this section's category row (hidden unless active).
+    const catFragment = document.createElement('ul');
+    catFragment.className = 'nav-cat-group';
+    if (categoriesUl) {
+      Array.from(categoriesUl.children).forEach((catLi) => {
+        const catLink = catLi.querySelector(':scope > a');
+        const panelUl = catLi.querySelector(':scope > ul');
+        const promoNodes = Array.from(catLi.children).filter((c) => c.tagName === 'P');
+
+        const cat = document.createElement('li');
+        cat.className = 'nav-cat';
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'nav-cat-trigger';
+        trigger.textContent = catLink ? catLink.textContent.trim() : '';
+        const href = catLink ? catLink.getAttribute('href') : null;
+
+        // A category with a panel opens a dropdown; one without navigates.
+        if (panelUl || promoNodes.length) {
+          trigger.setAttribute('aria-expanded', 'false');
+          if (href) trigger.dataset.href = href;
+          cat.append(trigger);
+
+          const panel = document.createElement('div');
+          panel.className = 'nav-panel';
+          if (panelUl) {
+            const links = document.createElement('ul');
+            links.className = 'nav-panel-links';
+            links.append(...panelUl.children);
+            panel.append(links);
+          }
+          if (promoNodes.length) {
+            const promo = document.createElement('div');
+            promo.className = 'nav-panel-promo';
+            promo.append(...promoNodes);
+            panel.append(promo);
+          }
+          cat.append(panel);
+        } else if (href) {
+          const catA = document.createElement('a');
+          catA.className = 'nav-cat-trigger';
+          catA.href = href;
+          catA.textContent = trigger.textContent;
+          cat.append(catA);
+        } else {
+          cat.append(trigger);
+        }
+
+        catFragment.append(cat);
+      });
+    }
+
+    // Each section's categories live in their own group inside the subnav so
+    // ALL section content is present in the DOM (source pre-renders the full
+    // tree). Inactive groups are hidden via CSS.
+    catFragment.classList.add('nav-cat-group');
+    subList.append(catFragment);
+
+    sections.push({
+      barItem, barBtn, catFragment, index: sectionIndex,
+    });
+  });
+
+  return {
+    bar, sub, subList, sections,
+  };
+}
+
+/**
+ * Show a given section's categories in the secondary row and mark it active.
+ * @param {object} model built sections model
+ * @param {number} activeIndex index to activate
+ */
+function activateSection(model, activeIndex) {
+  const { sections } = model;
+  sections.forEach((s) => {
+    const active = s.index === activeIndex;
+    s.barItem.classList.toggle('is-active', active);
+    s.catFragment.classList.toggle('is-active-group', active);
+  });
+}
+
+/**
+ * loads and decorates the header
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
-  // load nav as fragment
+  // load nav as fragment — localhost first, then DA/EDS production path.
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const fragment = await loadFragment(navPath);
+  let fragment;
+  // localhost / aem up serves the plain fragment directly; DA/EDS uses navPath.
+  let resp = await fetch('/content/nav.plain.html');
+  if (!resp.ok) {
+    resp = await fetch(`${navPath}.plain.html`);
+  }
+  if (resp.ok) {
+    const html = await resp.text();
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    // The fragment lives at /content/ and references images with relative paths
+    // (images/foo.svg). Those only resolve at root depth; on deeper pages they
+    // 404. Rewrite to an absolute /content/images/ path so logos/icons load on
+    // every page regardless of URL depth.
+    tmp.querySelectorAll('img[src^="images/"]').forEach((img) => {
+      img.setAttribute('src', `/content/${img.getAttribute('src')}`);
+    });
+    fragment = tmp;
+  } else {
+    fragment = await loadFragment(navPath);
+  }
 
-  // decorate nav DOM
   block.textContent = '';
   const nav = document.createElement('nav');
   nav.id = 'nav';
-  while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
+  nav.setAttribute('aria-label', 'Main navigation');
 
-  const classes = ['brand', 'sections', 'tools'];
-  classes.forEach((c, i) => {
-    const section = nav.children[i];
-    if (section) section.classList.add(`nav-${c}`);
-  });
+  const rawSections = Array.from(fragment.children).filter((c) => c.tagName === 'DIV');
+  // Expected fragment order: [0] FDIC, [1] brand, [2] sections tree, [3] tools.
+  const fdicEl = rawSections[0] ? buildFdicBar(rawSections[0]) : null;
+  const brandEl = rawSections[1] ? buildBrand(rawSections[1]) : null;
+  const sectionsModel = rawSections[2] ? buildSections(rawSections[2]) : null;
+  const toolsEl = rawSections[3] ? buildTools(rawSections[3]) : null;
 
-  const navBrand = nav.querySelector('.nav-brand');
-  const brandLink = navBrand.querySelector('.button');
-  if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
+  // Assemble the three visual rows.
+  if (fdicEl) nav.append(fdicEl);
+
+  const mainRow = document.createElement('div');
+  mainRow.className = 'nav-main';
+  if (brandEl) mainRow.append(brandEl);
+  if (sectionsModel) mainRow.append(sectionsModel.bar);
+  if (toolsEl) mainRow.append(toolsEl);
+
+  // Hamburger (mobile) — behavior wired in a later phase; present for structure.
+  const hamburger = document.createElement('div');
+  hamburger.className = 'nav-hamburger';
+  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation" aria-expanded="false">
+      <span class="nav-hamburger-icon"></span>
+    </button>`;
+  mainRow.prepend(hamburger);
+
+  nav.append(mainRow);
+  if (sectionsModel) nav.append(sectionsModel.sub);
+
+  // Default active section is the first (Personal).
+  if (sectionsModel) {
+    activateSection(sectionsModel, 0);
+
+    // Category dropdown open/close (hover on desktop, click as fallback/toggle).
+    const { sub } = sectionsModel;
+
+    sub.addEventListener('mouseover', (e) => {
+      if (!isDesktop.matches) return;
+      const cat = e.target.closest('.nav-cat');
+      if (!cat || !cat.querySelector(':scope > .nav-panel')) return;
+      closeAllPanels(sub);
+      cat.classList.add('is-open');
+      const trigger = cat.querySelector(':scope > .nav-cat-trigger');
+      if (trigger && trigger.tagName === 'BUTTON') trigger.setAttribute('aria-expanded', 'true');
+    });
+
+    sub.addEventListener('mouseleave', () => {
+      if (!isDesktop.matches) return;
+      closeAllPanels(sub);
+    });
+
+    sub.addEventListener('click', (e) => {
+      const trigger = e.target.closest('.nav-cat-trigger');
+      if (!trigger || trigger.tagName !== 'BUTTON') return;
+      const cat = trigger.closest('.nav-cat');
+      const hasPanel = !!cat.querySelector(':scope > .nav-panel');
+      if (!hasPanel) return;
+      const willOpen = !cat.classList.contains('is-open');
+      closeAllPanels(sub);
+      if (willOpen) {
+        cat.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
   }
 
-  const navSections = nav.querySelector('.nav-sections');
-  if (navSections) {
-    navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
-      if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-      navSection.addEventListener('click', () => {
-        if (isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
+  // Hamburger (mobile): toggle the drawer open/closed, lock body scroll, and
+  // keep aria-expanded in sync. The CSS reveals .nav-sections + .nav-subnav +
+  // .nav-tools as a stacked drawer when nav.is-menu-open is set.
+  const hamburgerBtn = hamburger.querySelector('button');
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', () => {
+      const open = nav.classList.toggle('is-menu-open');
+      hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      hamburgerBtn.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+      document.body.style.overflowY = open ? 'hidden' : '';
+    });
+  }
+
+  // Mobile: tapping a top-level section link switches which section's category
+  // group is shown (accordion-style), instead of navigating. On desktop the
+  // link navigates normally.
+  if (sectionsModel) {
+    sectionsModel.sections.forEach((s) => {
+      s.barBtn.addEventListener('click', (e) => {
+        if (isDesktop.matches) return;
+        e.preventDefault();
+        const alreadyActive = s.barItem.classList.contains('is-active');
+        closeAllPanels(sectionsModel.sub);
+        activateSection(sectionsModel, alreadyActive ? -1 : s.index);
       });
     });
   }
 
-  const navTools = nav.querySelector('.nav-tools');
-  if (navTools) {
-    const search = navTools.querySelector('a[href*="search"]');
-    if (search && search.textContent === '') {
-      search.setAttribute('aria-label', 'Search');
-    }
-  }
+  // Close panels when focus/pointer leaves the header entirely.
+  document.addEventListener('click', (e) => {
+    if (sectionsModel && !nav.contains(e.target)) closeAllPanels(sectionsModel.sub);
+  });
+  nav.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && sectionsModel) closeAllPanels(sectionsModel.sub);
+  });
 
-  // hamburger for mobile
-  const hamburger = document.createElement('div');
-  hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="nav-hamburger-icon"></span>
-    </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-  nav.prepend(hamburger);
-  nav.setAttribute('aria-expanded', 'false');
-  // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+  // Reset transient state when crossing the desktop/mobile boundary on resize.
+  isDesktop.addEventListener('change', () => {
+    if (sectionsModel) closeAllPanels(sectionsModel.sub);
+    const hb = nav.querySelector('.nav-hamburger button');
+    if (hb) hb.setAttribute('aria-expanded', 'false');
+    nav.classList.remove('is-menu-open');
+    document.body.style.overflowY = '';
+  });
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
-
-  if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
-    navWrapper.append(await buildBreadcrumbs());
-  }
 }

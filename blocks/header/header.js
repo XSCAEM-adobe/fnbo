@@ -144,7 +144,9 @@ function buildSections(sectionEl) {
   const sections = [];
 
   Array.from(topUl.children).forEach((li, sectionIndex) => {
-    const sectionLink = li.querySelector(':scope > a');
+    // Document Authoring wraps bare anchors in a <p>, so the section/category
+    // link may be either a direct <a> child or nested in a <p> (`<li><p><a>`).
+    const sectionLink = li.querySelector(':scope > a, :scope > p > a');
     const categoriesUl = li.querySelector(':scope > ul');
 
     // Top-level section entry in the green bar.
@@ -162,9 +164,12 @@ function buildSections(sectionEl) {
     catFragment.className = 'nav-cat-group';
     if (categoriesUl) {
       Array.from(categoriesUl.children).forEach((catLi) => {
-        const catLink = catLi.querySelector(':scope > a');
+        const catLink = catLi.querySelector(':scope > a, :scope > p > a');
         const panelUl = catLi.querySelector(':scope > ul');
-        const promoNodes = Array.from(catLi.children).filter((c) => c.tagName === 'P');
+        // Promo nodes are standalone <p>s — but exclude the <p> that merely
+        // wraps the category link (DA wraps bare anchors in <p>).
+        const promoNodes = Array.from(catLi.children)
+          .filter((c) => c.tagName === 'P' && !c.querySelector(':scope > a'));
 
         const cat = document.createElement('li');
         cat.className = 'nav-cat';

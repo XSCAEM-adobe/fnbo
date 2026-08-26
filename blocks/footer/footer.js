@@ -91,13 +91,22 @@ export default async function decorate(block) {
   footer.className = 'footer-content';
 
   if (fragment) {
-    const sections = [...fragment.children];
+    // Drop empty sections (DA can emit stray empty divs) so they don't consume
+    // a grid column.
+    const sections = [...fragment.children]
+      .filter((s) => s.textContent.trim() !== '' || s.querySelector('img, hr'));
     sections.forEach((section, i) => {
       section.classList.add('footer-section');
       // First section = brand (logo + tagline + social icons)
       if (i === 0) section.classList.add('footer-brand');
-      // Last section = legal / disclaimer block (contains the <hr>)
-      if (section.querySelector('hr')) section.classList.add('footer-legal');
+      // Legal / disclaimer block: identified by an <hr> OR the copyright/
+      // disclaimer text (the <hr> is stripped by Document Authoring, so detect
+      // by content). This block spans the full footer width below the columns.
+      const text = section.textContent;
+      if (section.querySelector('hr')
+        || /All Rights Reserved|NMLS|FDIC INSURED|Equal Opportunity/i.test(text)) {
+        section.classList.add('footer-legal');
+      }
       footer.append(section);
     });
 

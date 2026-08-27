@@ -61,6 +61,11 @@
   width: var(--slide-content-width, auto);
 }
 
+/* Keep carousel text readable on the dark scrim — override global heading/body colors */
+.carousel .carousel-slide .carousel-slide-content :is(h1, h2, h3, h4, h5, h6, p) {
+  color: white;
+}
+
 .carousel .carousel-slide-indicators {
   display: flex;
   flex-wrap: wrap;

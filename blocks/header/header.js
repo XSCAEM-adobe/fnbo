@@ -250,6 +250,22 @@ function activateSection(model, activeIndex) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  // Best-effort de-dupe for the Document Authoring editor preview. The real
+  // aem.page / aem.live pages always contain exactly one header, so on those
+  // this finds a single element and does nothing. Inside the DA editor preview
+  // the page can end up with a second injected copy of the header (two stacked
+  // nav bars); when that happens we keep the header we're decorating and drop
+  // any extras. Guarded on length > 1 so it can never remove the sole live header.
+  const existingHeaders = document.querySelectorAll('header.header-wrapper');
+  if (existingHeaders.length > 1) {
+    const mine = block.closest('header.header-wrapper');
+    if (mine) {
+      existingHeaders.forEach((h) => {
+        if (h !== mine) h.remove();
+      });
+    }
+  }
+
   // load nav as fragment — localhost first, then DA/EDS production path.
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
